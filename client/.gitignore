@@ -48,3 +48,4 @@ functions/lib/
 # Environment variables
 .env
 .env.production
+.vercel
