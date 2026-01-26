@@ -8,7 +8,7 @@ const About = () => {
         <AnimatedSection animation="fade-up">
           <h1 className="section-header">About Mkulima Sharp</h1>
           <p className="section-subheader">
-            Building Kenya's poultry future together
+            Building Kenya&apos;s poultry future together
           </p>
         </AnimatedSection>
 

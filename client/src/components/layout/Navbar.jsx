@@ -9,7 +9,7 @@ const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { scrollPosition } = useScrollPosition();
   const { user } = useAuth();
-  const [cartCount, setCartCount] = useState(0); // TODO: Connect to cart store
+  const [cartCount, _setCartCount] = useState(0); // TODO: Connect to cart store
 
   // Calculate dynamic scroll effect (Kenchic-style)
   const scrollOffset = Math.min(scrollPosition * 0.1, 20);

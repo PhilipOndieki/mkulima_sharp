@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import { HiCheckCircle, HiTruck, HiAcademicCap, HiChevronDown } from 'react-icons/hi';
 import AnimatedSection from '../components/common/AnimatedSection';
 import Button from '../components/common/Button';
