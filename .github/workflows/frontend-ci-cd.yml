@@ -82,7 +82,7 @@ jobs:
     - name: 📤 Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: mkulima-sharp-dist
+        name: mkulima-sharp-dist-${{ github.sha }}
         path: client/dist
         retention-days: 7
 
@@ -136,7 +136,7 @@ jobs:
       run: echo "🎉 Production deployment successful!"
 
   performance-audit:
-    name: mkulima-sharp-dist-${{ github.sha }}
+    name: Perfomance audit
     needs: build
     runs-on: ubuntu-latest
     
@@ -147,7 +147,7 @@ jobs:
     - name: 📥 Download build artifacts
       uses: actions/download-artifact@v4
       with:
-        name: mkulima-sharp-dist
+        name: mkulima-sharp-dist-${{ github.sha }}
         path: client/dist
     
     - name: 🔧 Setup Node.js
