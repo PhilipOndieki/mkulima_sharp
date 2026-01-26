@@ -1,0 +1,213 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-900 antialiased;
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display text-gray-900;
+  }
+  
+  /* Mobile-first base font size */
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+  }
+  
+  /* Prevent horizontal scroll on mobile */
+  html, body {
+    overflow-x: hidden;
+    width: 100%;
+  }
+}
+
+@layer components {
+  /* Boxed Content Pattern (Kenchic-inspired) */
+  .content-box {
+    @apply bg-white rounded-2xl shadow-card p-6 md:p-8 lg:p-12;
+    @apply transition-all duration-300;
+    @apply hover:shadow-card-hover;
+  }
+  
+  /* Buttons - Mobile-first with touch optimization */
+  .btn-primary {
+    @apply px-6 py-4 bg-gradient-to-r from-primary-600 to-primary-700;
+    @apply text-white font-semibold rounded-full;
+    @apply shadow-lg hover:shadow-xl;
+    @apply transform transition-all duration-300;
+    @apply hover:scale-105 hover:from-primary-700 hover:to-primary-800;
+    @apply focus:outline-none focus:ring-4 focus:ring-primary-500/50;
+    @apply min-h-[48px] text-center;
+    @apply active:scale-95; /* Touch feedback */
+  }
+  
+  .btn-secondary {
+    @apply px-6 py-4 bg-white text-primary-700 border-2 border-primary-700;
+    @apply font-semibold rounded-full;
+    @apply hover:bg-primary-50 transition-all duration-300;
+    @apply min-h-[48px] text-center;
+    @apply active:bg-primary-100;
+  }
+  
+  .btn-outline {
+    @apply px-6 py-3 border-2 border-gray-300 text-gray-700;
+    @apply font-medium rounded-lg;
+    @apply hover:border-primary-600 hover:text-primary-600;
+    @apply transition-all duration-200;
+    @apply min-h-[44px];
+  }
+  
+  /* Section Headers - Mobile-first responsive sizing */
+  .section-header {
+    @apply text-3xl md:text-4xl lg:text-5xl font-display font-bold;
+    @apply text-gray-900 mb-4 md:mb-6;
+    @apply leading-tight tracking-tight;
+  }
+  
+  .section-subheader {
+    @apply text-lg md:text-xl lg:text-2xl text-gray-600;
+    @apply mb-8 md:mb-12 leading-relaxed;
+  }
+  
+  /* Cards - Touch-optimized */
+  .feature-card {
+    @apply content-box;
+    @apply border-t-4 border-primary-500;
+    @apply cursor-pointer;
+  }
+  
+  .product-card {
+    @apply bg-white rounded-xl shadow-card overflow-hidden;
+    @apply transition-all duration-300 hover:shadow-card-hover;
+    @apply md:hover:-translate-y-2; /* Only hover effect on desktop */
+  }
+  
+  /* Responsive Containers - Mobile-first */
+  .container-custom {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  
+  .content-wrapper {
+    @apply max-w-4xl mx-auto px-4 sm:px-6;
+  }
+  
+  /* Form Elements - Touch-optimized */
+  .input-field {
+    @apply w-full px-4 py-3 md:py-4;
+    @apply border-2 border-gray-300 rounded-lg;
+    @apply focus:border-primary-600 focus:ring-2 focus:ring-primary-500/20;
+    @apply transition-all duration-200;
+    @apply text-base; /* Prevent zoom on iOS */
+    @apply min-h-[48px];
+  }
+  
+  .textarea-field {
+    @apply input-field;
+    @apply min-h-[120px] resize-y;
+  }
+  
+  /* Mobile-specific utilities */
+  .touch-target {
+    @apply min-w-[44px] min-h-[44px] flex items-center justify-center;
+  }
+  
+  /* Loading states */
+  .skeleton {
+    @apply bg-gray-200 animate-pulse rounded;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .clip-path-hero {
+    clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+  }
+  
+  /* Safe area padding for mobile devices with notches */
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* Smooth Scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom Scrollbar - Desktop only */
+@media (min-width: 1024px) {
+  ::-webkit-scrollbar {
+    width: 12px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #16a34a;
+    border-radius: 6px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #15803d;
+  }
+}
+
+/* Mobile-specific optimizations */
+@media (max-width: 640px) {
+  /* Larger tap targets on mobile */
+  button, a {
+    min-height: 44px;
+  }
+  
+  /* Prevent text resize on orientation change */
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  
+  /* Remove hover effects on touch devices */
+  .product-card:hover {
+    transform: none;
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Focus visible for keyboard navigation */
+*:focus-visible {
+  outline: 3px solid #16a34a;
+  outline-offset: 2px;
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
