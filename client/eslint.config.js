@@ -9,6 +9,7 @@ export default [
   { 
     ignores: [
       'dist', 
+      'functions/**/*', 
       'node_modules',
       'functions/.eslintrc.js',  // Ignore the functions eslint config
       'vite.config.js'            // Ignore vite config
