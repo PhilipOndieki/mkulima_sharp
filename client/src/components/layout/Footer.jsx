@@ -1,13 +1,12 @@
 import { Link } from 'react-router-dom';
 import { 
-  
   HiMail, 
   HiPhone, 
   HiLocationMarker 
 } from 'react-icons/hi';
 import { 
-  FaFacebook,
-  FaInstagram, 
+  FaFacebook, 
+  FaTiktok,
   FaWhatsapp, 
   FaYoutube 
 } from 'react-icons/fa';
@@ -65,7 +64,7 @@ const Footer = () => {
             {/* Social Media Links */}
             <div className="flex space-x-4">
               <a
-                href="https://facebook.com/mkulimasharp"
+                href=" https://www.facebook.com/share/1Au3c1JMKb/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="touch-target text-gray-400 hover:text-primary-500 transition-colors"
@@ -74,16 +73,16 @@ const Footer = () => {
                 <FaFacebook className="w-6 h-6" />
               </a>
               <a
-                href="https://instagram.com/mkulimasharp"
+                href="https://www.tiktok.com/@mkulimasharp_kenya?_r=1&_t=ZS-93N3MgXEo7x"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="touch-target text-gray-400 hover:text-primary-500 transition-colors"
-                aria-label="Instagram"
+                aria-label="TikTok"
               >
-                <FaInstagram className="w-6 h-6" />
+                <FaTiktok className="w-6 h-6" />
               </a>
               <a
-                href="https://wa.me/254700000000"
+                href="https://wa.me/254738151161"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="touch-target text-gray-400 hover:text-primary-500 transition-colors"
@@ -92,7 +91,7 @@ const Footer = () => {
                 <FaWhatsapp className="w-6 h-6" />
               </a>
               <a
-                href="https://youtube.com/@mkulimasharp"
+                href="https://youtube.com/@mkulimasharp254?si=aEPVuNxtkRgjxwNf"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="touch-target text-gray-400 hover:text-primary-500 transition-colors"
