@@ -136,7 +136,7 @@ jobs:
       run: echo "🎉 Production deployment successful!"
 
   performance-audit:
-    name: Performance Audit
+    name: mkulima-sharp-dist-${{ github.sha }}
     needs: build
     runs-on: ubuntu-latest
     
