@@ -172,20 +172,3 @@ jobs:
           ${{ secrets.VERCEL_PRODUCTION_URL }}
         uploadArtifacts: true
         temporaryPublicStorage: true
-
-
-## Step 2: Set Up GitHub Secrets
-
-Go to your GitHub repository → Settings → Secrets and variables → Actions → New repository secret
-
-Add these secrets:
-
-### Firebase Secrets:
-
-VITE_FIREBASE_API_KEY
-VITE_FIREBASE_AUTH_DOMAIN
-VITE_FIREBASE_PROJECT_ID
-VITE_FIREBASE_STORAGE_BUCKET
-VITE_FIREBASE_MESSAGING_SENDER_ID
-VITE_FIREBASE_APP_ID
-VITE_FIREBASE_MEASUREMENT_ID
