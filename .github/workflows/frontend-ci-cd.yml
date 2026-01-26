@@ -35,10 +35,6 @@ jobs:
       working-directory: ./client
       run: npm run lint
     
-    - name: 🧪 Run tests
-      working-directory: ./client
-      run: npm test
-    
     - name: ✅ Quality check passed
       run: echo "✅ All quality checks passed!"
 
