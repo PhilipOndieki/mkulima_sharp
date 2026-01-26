@@ -12,9 +12,8 @@ on:
       - 'client/**'
 
 jobs:
-  # Job 1: Code Quality & Linting
-  lint:
-    name: Code Quality Check
+  quality-check:
+    name: Code Quality & Tests
     runs-on: ubuntu-latest
     
     steps:
@@ -36,16 +35,16 @@ jobs:
       working-directory: ./client
       run: npm run lint
     
-    - name: 📝 Check code formatting (optional)
+    - name: 🧪 Run tests
       working-directory: ./client
-      run: |
-        echo "✅ Code quality checks passed!"
-        echo "Files checked: $(find src -type f -name '*.jsx' -o -name '*.js' | wc -l)"
+      run: npm test
+    
+    - name: ✅ Quality check passed
+      run: echo "✅ All quality checks passed!"
 
-  # Job 2: Build & Test
   build:
     name: Build Application
-    needs: lint
+    needs: quality-check
     runs-on: ubuntu-latest
     
     steps:
@@ -63,11 +62,10 @@ jobs:
       working-directory: ./client
       run: npm ci
     
-    - name: 🏗️ Build production bundle
+    - name: 🏗️ Build application
       working-directory: ./client
       run: npm run build
       env:
-        # Firebase Configuration
         VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
         VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
         VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
@@ -79,56 +77,72 @@ jobs:
     - name: 📊 Build statistics
       working-directory: ./client
       run: |
-        echo "📦 Build Statistics for Mkulima Sharp:"
-        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        echo "Total build size: $(du -sh dist | cut -f1)"
+        echo "📊 Build Statistics:"
+        echo "===================="
+        du -sh dist
         echo ""
-        echo "📁 Build contents:"
-        ls -lah dist
-        echo ""
-        echo "🎯 JavaScript bundles:"
-        find dist -name '*.js' -exec du -h {} \; | sort -rh
-        echo ""
-        echo "✅ Frontend build successful!"
+        echo "✅ Build successful!"
     
-    - name: 💾 Upload build artifacts
+    - name: 📤 Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: mkulima-sharp-dist-${{ github.sha }}
+        name: mkulima-sharp-dist
         path: client/dist
         retention-days: 7
 
-  # Job 3: Deploy to Vercel (Production)
   deploy-vercel:
     name: Deploy to Vercel
     needs: build
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
     
     steps:
     - name: 📥 Checkout code
       uses: actions/checkout@v4
     
-    - name: 🚀 Deploy to Vercel
-      uses: amondnet/vercel-action@v25
+    - name: 🔧 Setup Node.js 20
+      uses: actions/setup-node@v4
       with:
-        vercel-token: ${{ secrets.VERCEL_TOKEN }}
-        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-        working-directory: ./client
-        vercel-args: '--prod'
+        node-version: '20.x'
     
+    - name: 📦 Install dependencies
+      working-directory: ./client
+      run: npm ci
+    
+    - name: 🏗️ Build application
+      working-directory: ./client
+      run: npm run build
+      env:
+        VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+        VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
+        VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+        VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
+        VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+        VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
+        VITE_FIREBASE_MEASUREMENT_ID: ${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}
+    
+    - name: 📦 Install Vercel CLI
+      run: npm install --global vercel@latest
+    
+    - name: 🔗 Pull Vercel Environment Information
+      working-directory: ./client
+      run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+    
+    - name: 🏗️ Build Project Artifacts
+      working-directory: ./client
+      run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+    
+    - name: 🚀 Deploy to Vercel
+      working-directory: ./client
+      run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+      
     - name: ✅ Deployment complete
-      run: |
-        echo "🎉 Mkulima Sharp deployed to production!"
-        echo "🌐 Check your Vercel dashboard for the live URL"
+      run: echo "🎉 Production deployment successful!"
 
-  # Job 4: Deploy to Firebase Hosting (Alternative/Backup)
-  deploy-firebase:
-    name: Deploy to Firebase
+  performance-audit:
+    name: Performance Audit
     needs: build
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     
     steps:
     - name: 📥 Checkout code
@@ -137,7 +151,7 @@ jobs:
     - name: 📥 Download build artifacts
       uses: actions/download-artifact@v4
       with:
-        name: mkulima-sharp-dist-${{ github.sha }}
+        name: mkulima-sharp-dist
         path: client/dist
     
     - name: 🔧 Setup Node.js
@@ -145,30 +159,16 @@ jobs:
       with:
         node-version: '20.x'
     
-    - name: 🔥 Deploy to Firebase Hosting
-      uses: FirebaseExtended/action-hosting-deploy@v0
-      with:
-        repoToken: ${{ secrets.GITHUB_TOKEN }}
-        firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-        channelId: live
-        projectId: ${{ secrets.FIREBASE_PROJECT_ID }}
-        entryPoint: ./client
+    - name: 📦 Serve build
+      working-directory: ./client
+      run: |
+        npx serve dist -l 3000 &
+        sleep 5
     
-    - name: ✅ Firebase deployment complete
-      run: echo "🔥 Mkulima Sharp deployed to Firebase Hosting!"
-
-  # Job 5: Lighthouse Performance Check
-  lighthouse:
-    name: Performance Audit
-    needs: deploy-vercel
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    
-    steps:
     - name: 🔍 Run Lighthouse CI
       uses: treosh/lighthouse-ci-action@v10
       with:
         urls: |
-          ${{ secrets.VERCEL_PRODUCTION_URL }}
+          http://localhost:3000
         uploadArtifacts: true
         temporaryPublicStorage: true
