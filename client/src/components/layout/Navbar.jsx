@@ -1,35 +1,37 @@
 import { useState, useEffect } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { HiMenu, HiX, HiShoppingCart, HiUser } from 'react-icons/hi';
-import { useScrollPosition } from '../../hooks/useScrollReveal';
 import { useAuth } from '../../hooks/useAuth';
 import clsx from 'clsx';
+import { useScrollDirection } from '../../hooks/useScrollDirection';
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { scrollPosition } = useScrollPosition();
   const { user } = useAuth();
-  const [cartCount, _setCartCount] = useState(0); // TODO: Connect to cart store
+  const [cartCount, _setCartCount] = useState(0);
+  
+  // OBJECTIVE 3: Scroll behavior with direction detection
+  const { scrollDirection, scrollPosition, isScrolled } = useScrollDirection(80);
+  
+  // Check for reduced motion preference
+  const prefersReducedMotion = typeof window !== 'undefined' && 
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  
+  // Determine if top tier should collapse
+  const shouldCollapseTop = !prefersReducedMotion && 
+                            scrollDirection === 'down' && 
+                            scrollPosition > 100;
 
-  // Calculate dynamic scroll effect (Kenchic-style)
-  const scrollOffset = Math.min(scrollPosition * 0.1, 20);
-  const isScrolled = scrollPosition > 100;
-
-  // Close mobile menu when route changes
   const handleLinkClick = () => {
     setMobileMenuOpen(false);
   };
 
-  // Prevent body scroll when mobile menu is open
   useEffect(() => {
     if (mobileMenuOpen) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
     }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
   }, [mobileMenuOpen]);
 
   const navLinks = [
@@ -37,212 +39,304 @@ const Navbar = () => {
     { path: '/products', label: 'Products' },
     { path: '/academy', label: 'Academy' },
     { path: '/business-builder', label: 'Business Builder' },
-    { path: '/services', label: 'Services' },
-    { path: '/about', label: 'About' },
-    { path: '/contact', label: 'Contact' },
   ];
 
   return (
     <>
+      {/* NAVBAR - Fixed positioning with shadow when scrolled */}
       <nav 
         className={clsx(
-          'fixed top-0 left-0 right-0 z-50',
-          'transition-all duration-500 ease-in-out',
-          'bg-white',
-          isScrolled ? 'shadow-lg' : 'border-b border-gray-200'
+          'fixed top-0 left-0 right-0 z-50 bg-white',
+          'transition-shadow duration-400 ease-in-out',
+          isScrolled && 'shadow-md'
         )}
-        style={{
-          transform: `translateY(${scrollOffset}px)`
-        }}
       >
-        <div className="container-custom">
-          <div className="flex items-center justify-between h-16 md:h-20">
-            {/* Logo */}
-            <Link 
-              to="/" 
-              className="flex items-center space-x-2 flex-shrink-0"
-              onClick={handleLinkClick}
-            >
-              <img 
-                src="/logo.svg" 
-                alt="Mkulima Sharp" 
-                className="h-10 md:h-12 w-auto"
-                onError={(e) => {
-                  e.target.style.display = 'none';
-                  e.target.nextSibling.style.display = 'block';
-                }}
-              />
-              <span 
-                className="font-display font-bold text-xl md:text-2xl text-primary-700"
-                style={{ display: 'none' }}
-              >
-                Mkulima Sharp
-              </span>
-            </Link>
-
-            {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center space-x-1">
-              {navLinks.map((link) => (
-                <NavLink
-                  key={link.path}
-                  to={link.path}
-                  className={({ isActive }) =>
-                    clsx(
-                      'px-4 py-2 rounded-lg font-medium transition-all duration-200',
-                      'hover:bg-primary-50 hover:text-primary-700',
-                      isActive
-                        ? 'text-primary-700 bg-primary-50'
-                        : 'text-gray-700'
-                    )
-                  }
-                >
-                  {link.label}
-                </NavLink>
-              ))}
+        {/* TOP TIER - UTILITY BAR (Collapsible on scroll down) */}
+        <div 
+          className={clsx(
+            "relative bg-white overflow-hidden",
+            "transition-all duration-400 ease-in-out",
+            // Collapse when scrolling down
+            shouldCollapseTop 
+              ? "h-0 opacity-0" 
+              : "h-10 md:h-12 opacity-100"
+          )}
+        >
+          <div className="container-custom px-8 md:px-10 lg:px-12">
+            <div className="flex items-center justify-between h-10 md:h-12">
+              {/* Left: Empty space for logo */}
+              <div className="w-32 md:w-48 lg:w-56" />
+              
+              {/* Right: Tagline + Kenya Badge */}
+              <div className="flex items-center gap-3 md:gap-6 text-sm">
+                <span className="hidden md:inline text-gray-600 font-medium">
+                  African Poultry Development
+                </span>
+                <div className="bg-primary-50 px-4 py-1.5 rounded-full">
+                  <span className="text-primary-700 font-semibold text-sm">Kenya</span>
+                </div>
+              </div>
             </div>
+          </div>
+          
+          {/* DIVIDING LINE - Inset from edges */}
+          <div 
+            className={clsx(
+              "absolute bottom-0 left-0 right-0 flex justify-center",
+              "transition-opacity duration-400",
+              shouldCollapseTop ? "opacity-0" : "opacity-100"
+            )}
+          >
+            <div className="w-[calc(100%-8rem)] md:w-[calc(100%-12rem)] h-px bg-gray-200" />
+          </div>
+        </div>
 
-            {/* Right Side Actions */}
-            <div className="flex items-center space-x-2 md:space-x-4">
-              {/* Cart Icon */}
-              <Link
-                to="/cart"
-                className="relative touch-target text-gray-700 hover:text-primary-700 transition-colors"
-                onClick={handleLinkClick}
-              >
-                <HiShoppingCart className="w-6 h-6 md:w-7 md:h-7" />
-                {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                    {cartCount}
-                  </span>
-                )}
-              </Link>
+        {/* BOTTOM TIER - MAIN NAVIGATION (Always visible) */}
+        <div className="relative bg-white border-b border-gray-100">
+          <div className="container-custom px-8 md:px-10 lg:px-12">
+            <div className="flex items-center justify-between h-15 md:h-16 lg:h-20">
+              
+              {/* Left: LOGO - OBJECTIVE 2: Perfect fit within navbar */}
+              <div className="relative flex items-center">
+                <Link 
+                  to="/" 
+                  onClick={handleLinkClick}
+                  aria-label="Mkulima Sharp Home"
+                  className="flex items-center"
+                >
+                  {/* Full Logo - Perfectly fitted */}
+                  <img 
+                    src="/logo.svg" 
+                    alt="Mkulima Sharp - Premium Poultry Farming" 
+                    className="h-20 md:h-24 lg:h-28 w-auto transition-all duration-300 ease-in-out"
+                  />
+                </Link>
+              </div>
 
-              {/* User Icon */}
-              <Link
-                to={user ? '/dashboard' : '/login'}
-                className="touch-target text-gray-700 hover:text-primary-700 transition-colors hidden md:flex"
-                onClick={handleLinkClick}
-              >
-                <HiUser className="w-6 h-6 md:w-7 md:h-7" />
-              </Link>
+              {/* Center: DESKTOP NAVIGATION - OBJECTIVE 1: Kenchic-exact spacing */}
+              <nav className="hidden lg:flex items-center justify-center flex-1 gap-7 xl:gap-8">
+                {navLinks.map((link) => (
+                  <NavLink
+                    key={link.path}
+                    to={link.path}
+                    className={({ isActive }) =>
+                      clsx(
+                        'px-5 xl:px-6 py-3 rounded-lg font-medium text-base transition-all duration-200',
+                        'hover:bg-primary-50 hover:text-primary-700',
+                        isActive
+                          ? 'text-primary-700 bg-primary-50'
+                          : 'text-gray-700'
+                      )
+                    }
+                  >
+                    {link.label}
+                  </NavLink>
+                ))}
+              </nav>
 
-              {/* Mobile Menu Toggle */}
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="lg:hidden touch-target text-gray-700 hover:text-primary-700"
-                aria-label="Toggle menu"
-              >
-                {mobileMenuOpen ? (
-                  <HiX className="w-7 h-7" />
-                ) : (
-                  <HiMenu className="w-7 h-7" />
-                )}
-              </button>
+              {/* Right: ICONS + CTA BUTTONS */}
+              <div className="flex items-center gap-5 md:gap-6 lg:gap-7">
+                {/* Cart Icon */}
+                <Link
+                  to="/cart"
+                  className="relative touch-target text-gray-700 hover:text-primary-700 transition-colors hidden md:flex"
+                  onClick={handleLinkClick}
+                >
+                  <HiShoppingCart className="w-8 h-8 lg:w-9 lg:h-9" />
+                  {cartCount > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-accent-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                      {cartCount}
+                    </span>
+                  )}
+                </Link>
+
+                {/* User Icon */}
+                <Link
+                  to={user ? '/dashboard' : '/login'}
+                  className="touch-target text-gray-700 hover:text-primary-700 transition-colors hidden md:flex"
+                  onClick={handleLinkClick}
+                >
+                  <HiUser className="w-8 h-8 lg:w-9 lg:h-9" />
+                </Link>
+
+                {/* OBJECTIVE 4: TWO CTA BUTTONS - Desktop */}
+                <div className="hidden lg:flex items-center gap-4">
+                  {/* PRIMARY CTA - Order Now */}
+                  <Link
+                    to="/products"
+                    className="px-6 py-3 bg-primary-600 text-white rounded-full 
+                               font-semibold text-sm hover:bg-primary-700 
+                               transition-all duration-200 shadow-md hover:shadow-lg
+                               hover:scale-105"
+                    onClick={handleLinkClick}
+                  >
+                    Order Now
+                  </Link>
+                  
+                  {/* SECONDARY CTA - Start Learning */}
+                  <Link
+                    to="/academy"
+                    className="px-6 py-3 border-2 border-primary-600 text-primary-700 
+                               bg-white rounded-full font-medium text-sm 
+                               hover:bg-primary-50 transition-all duration-200"
+                    onClick={handleLinkClick}
+                  >
+                    Start Learning
+                  </Link>
+                </div>
+
+                {/* Mobile Menu Toggle */}
+                <button
+                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                  className="lg:hidden p-2 text-gray-700 hover:text-primary-700 transition-colors"
+                  aria-label="Toggle mobile menu"
+                >
+                  {mobileMenuOpen ? (
+                    <HiX className="w-7 h-7" />
+                  ) : (
+                    <HiMenu className="w-7 h-7" />
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </nav>
 
-      {/* Mobile Menu Drawer */}
+      {/* DYNAMIC SPACER - Adjusts based on navbar height */}
+      <div 
+        className="transition-all duration-400"
+        style={{
+          height: shouldCollapseTop ? '80px' : '128px'
+        }}
+      />
+
+      {/* MOBILE MENU OVERLAY */}
       <div
         className={clsx(
-          'fixed inset-0 bg-black transition-opacity duration-300 z-40 lg:hidden',
-          mobileMenuOpen
-            ? 'bg-opacity-50 pointer-events-auto'
-            : 'bg-opacity-0 pointer-events-none'
+          'fixed inset-0 bg-black/50 z-40 lg:hidden transition-opacity duration-300',
+          mobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
         )}
         onClick={() => setMobileMenuOpen(false)}
-      >
-        <div
-          className={clsx(
-            'fixed left-0 top-0 bottom-0 w-80 max-w-[85vw] bg-white shadow-xl',
-            'transform transition-transform duration-300 ease-in-out overflow-y-auto',
-            mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
-          )}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="p-6">
-            {/* Mobile Menu Header */}
-            <div className="flex items-center justify-between mb-8">
-              <Link to="/" onClick={handleLinkClick}>
-                <img 
-                  src="/logo.svg" 
-                  alt="Mkulima Sharp" 
-                  className="h-10 w-auto"
-                />
-              </Link>
-              <button
-                onClick={() => setMobileMenuOpen(false)}
-                className="touch-target text-gray-700"
-                aria-label="Close menu"
-              >
-                <HiX className="w-6 h-6" />
-              </button>
-            </div>
+      />
 
-            {/* Mobile Navigation Links */}
-            <nav className="space-y-2">
-              {navLinks.map((link) => (
-                <NavLink
-                  key={link.path}
-                  to={link.path}
-                  onClick={handleLinkClick}
-                  className={({ isActive }) =>
-                    clsx(
-                      'block px-4 py-3 rounded-lg font-medium transition-all duration-200',
-                      'hover:bg-primary-50 hover:text-primary-700',
-                      isActive
-                        ? 'text-primary-700 bg-primary-50'
-                        : 'text-gray-700'
-                    )
-                  }
-                >
-                  {link.label}
-                </NavLink>
-              ))}
-              
-              {/* User Account Link for Mobile */}
+      {/* MOBILE MENU PANEL */}
+      <div
+        className={clsx(
+          'fixed top-0 right-0 bottom-0 w-80 max-w-[85vw] bg-white z-50 lg:hidden',
+          'transform transition-transform duration-300 ease-in-out',
+          'shadow-2xl overflow-y-auto',
+          mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
+        )}
+      >
+        <div className="p-6">
+          {/* Mobile Menu Header with Kenya Badge */}
+          <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-200">
+            <span className="text-xs text-gray-600 font-medium">
+              African Poultry Development
+            </span>
+            <div className="bg-primary-50 px-3 py-1 rounded-full">
+              <span className="text-primary-700 font-semibold text-xs">Kenya</span>
+            </div>
+          </div>
+
+          {/* Logo + Close Button */}
+          <div className="flex items-center justify-between mb-8">
+            <Link to="/" onClick={handleLinkClick}>
+              <img 
+                src="/logo.svg" 
+                alt="Mkulima Sharp" 
+                className="h-16 w-auto"
+              />
+            </Link>
+            <button
+              onClick={() => setMobileMenuOpen(false)}
+              className="p-2 text-gray-700 hover:text-primary-700 transition-colors"
+              aria-label="Close menu"
+            >
+              <HiX className="w-6 h-6" />
+            </button>
+          </div>
+
+          {/* Navigation Links */}
+          <nav className="space-y-1 mb-6">
+            {navLinks.map((link) => (
               <NavLink
-                to={user ? '/dashboard' : '/login'}
+                key={link.path}
+                to={link.path}
                 onClick={handleLinkClick}
                 className={({ isActive }) =>
                   clsx(
-                    'block px-4 py-3 rounded-lg font-medium transition-all duration-200',
-                    'hover:bg-primary-50 hover:text-primary-700',
+                    'block px-4 py-3 rounded-lg font-medium text-base transition-colors',
                     isActive
-                      ? 'text-primary-700 bg-primary-50'
-                      : 'text-gray-700'
+                      ? 'bg-primary-50 text-primary-700'
+                      : 'text-gray-700 hover:bg-gray-50'
                   )
                 }
               >
-                {user ? 'My Account' : 'Sign In'}
+                {link.label}
               </NavLink>
-            </nav>
+            ))}
+          </nav>
 
-            {/* Mobile Menu Footer */}
-            <div className="mt-8 pt-8 border-t border-gray-200">
-              <p className="text-sm text-gray-600 mb-4">
-                Need help? Contact us
-              </p>
-              <a 
-                href="tel:+254700000000" 
-                className="block text-primary-700 font-semibold mb-2"
-              >
-                +254 700 000 000
-              </a>
-              <a 
-                href="mailto:info@mkulimasharp.co.ke" 
-                className="block text-primary-700 font-semibold"
-              >
-                info@mkulimasharp.co.ke
-              </a>
-            </div>
+          {/* Mobile Action Links */}
+          <div className="space-y-3 mb-6 pt-6 border-t border-gray-200">
+            <Link
+              to="/cart"
+              onClick={handleLinkClick}
+              className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+            >
+              <HiShoppingCart className="w-6 h-6" />
+              <span className="font-medium">Cart</span>
+              {cartCount > 0 && (
+                <span className="ml-auto bg-accent-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
+            <Link
+              to={user ? '/dashboard' : '/login'}
+              onClick={handleLinkClick}
+              className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+            >
+              <HiUser className="w-6 h-6" />
+              <span className="font-medium">{user ? 'My Account' : 'Login'}</span>
+            </Link>
+          </div>
+
+          {/* OBJECTIVE 4: TWO CTA BUTTONS - Mobile */}
+          <div className="space-y-3">
+            {/* PRIMARY - Order Now */}
+            <Link
+              to="/products"
+              onClick={handleLinkClick}
+              className="block w-full px-5 py-3.5 bg-primary-600 text-white 
+                         text-center rounded-full font-semibold text-base
+                         hover:bg-primary-700 transition-colors shadow-md"
+            >
+              Order Now
+            </Link>
+            
+            {/* SECONDARY - Start Learning */}
+            <Link
+              to="/academy"
+              onClick={handleLinkClick}
+              className="block w-full px-5 py-3 border-2 border-primary-600 
+                         text-primary-700 text-center rounded-full font-medium
+                         text-base hover:bg-primary-50 transition-colors"
+            >
+              Start Learning
+            </Link>
+          </div>
+
+          {/* Mobile Menu Footer */}
+          <div className="mt-8 pt-6 border-t border-gray-200">
+            <p className="text-xs text-gray-500 text-center">
+              © 2026 Mkulima Sharp. All rights reserved.
+            </p>
           </div>
         </div>
       </div>
-
-      {/* Spacer to prevent content from going under fixed navbar */}
-      <div className="h-16 md:h-20" />
     </>
   );
 };
