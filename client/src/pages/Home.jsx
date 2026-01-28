@@ -141,15 +141,6 @@ const Home = () => {
             </AnimatedSection>
           </div>
         </div>
-
-        {/* Scroll Indicator */}
-        <AnimatedSection 
-          animation="fade-up" 
-          delay={800}
-          className="absolute bottom-8 left-1/2 transform -translate-x-1/2 hidden md:block"
-        >
-          <HiChevronDown className="w-8 h-8 text-white animate-bounce" />
-        </AnimatedSection>
       </section>
 
       {/* Value Propositions Section */}
