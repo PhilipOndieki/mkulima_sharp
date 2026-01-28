@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { HiMenu, HiX, HiShoppingCart, HiUser } from 'react-icons/hi';
 import { useAuth } from '../../hooks/useAuth';
 import clsx from 'clsx';
@@ -7,8 +7,10 @@ import { useScrollDirection } from '../../hooks/useScrollDirection';
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { user } = useAuth();
+  const { user, isAuthenticated, signOut, isAdmin, loading } = useAuth();
+  const navigate = useNavigate();
   const [cartCount, _setCartCount] = useState(0);
+  const [showUserMenu, setShowUserMenu] = useState(false);
   
   // OBJECTIVE 3: Scroll behavior with direction detection
   const { scrollDirection, scrollPosition, isScrolled } = useScrollDirection(80);
@@ -24,6 +26,7 @@ const Navbar = () => {
 
   const handleLinkClick = () => {
     setMobileMenuOpen(false);
+    setShowUserMenu(false);
   };
 
   useEffect(() => {
@@ -34,11 +37,36 @@ const Navbar = () => {
     }
   }, [mobileMenuOpen]);
 
+  // Close user menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showUserMenu && !event.target.closest('.user-menu-container')) {
+        setShowUserMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showUserMenu]);
+
+  /**
+   * Handle user sign out
+   */
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      setShowUserMenu(false);
+      navigate('/');
+    } catch (error) {
+      console.error('[Navbar] Sign out failed:', error);
+    }
+  };
+
   const navLinks = [
     { path: '/', label: 'Home' },
     { path: '/products', label: 'Products' },
     { path: '/academy', label: 'Academy' },
-    { path: '/business-builder', label: 'Business Builder' },
+    { path: '/contact', label: 'Contact Us' },
   ];
 
   return (
@@ -134,7 +162,7 @@ const Navbar = () => {
                 ))}
               </nav>
 
-              {/* Right: ICONS + CTA BUTTONS */}
+              {/* Right: ICONS + CTA BUTTONS + AUTH */}
               <div className="flex items-center gap-5 md:gap-6 lg:gap-7">
                 {/* Cart Icon */}
                 <Link
@@ -150,14 +178,117 @@ const Navbar = () => {
                   )}
                 </Link>
 
-                {/* User Icon */}
-                <Link
-                  to={user ? '/dashboard' : '/login'}
-                  className="touch-target text-gray-700 hover:text-primary-700 transition-colors hidden md:flex"
-                  onClick={handleLinkClick}
-                >
-                  <HiUser className="w-8 h-8 lg:w-9 lg:h-9" />
-                </Link>
+                {/* Authentication Section */}
+                {!loading && (
+                  <>
+                    {isAuthenticated() ? (
+                      /* Authenticated User - Avatar with Dropdown */
+                      <div className="relative user-menu-container">
+                        <button
+                          onClick={() => setShowUserMenu(!showUserMenu)}
+                          className="flex items-center space-x-2 touch-target focus:outline-none"
+                          aria-label="User menu"
+                        >
+                          <img 
+                            src={user?.photoURL || '/default-avatar.png'} 
+                            alt={user?.displayName || 'User'}
+                            className="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-primary-600 object-cover"
+                            onError={(e) => {
+                              e.target.src = 'https://ui-avatars.com/api/?name=' + 
+                                encodeURIComponent(user?.displayName || 'User') + 
+                                '&background=16a34a&color=fff';
+                            }}
+                          />
+                          {isAdmin() && (
+                            <span className="hidden lg:inline-block bg-primary-600 text-white text-xs px-2 py-1 rounded-full font-semibold">
+                              Admin
+                            </span>
+                          )}
+                        </button>
+                        
+                        {/* Dropdown Menu - Desktop */}
+                        {showUserMenu && (
+                          <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl py-2 border border-gray-100 z-50">
+                            {/* User Info Header */}
+                            <div className="px-4 py-3 border-b border-gray-100">
+                              <p className="font-semibold text-gray-900 truncate">
+                                {user?.displayName || 'User'}
+                              </p>
+                              <p className="text-xs text-gray-600 truncate">
+                                {user?.email}
+                              </p>
+                              {user?.role && (
+                                <span className="inline-block mt-2 bg-primary-100 text-primary-700 px-2 py-1 rounded text-xs font-semibold capitalize">
+                                  {user.role}
+                                </span>
+                              )}
+                            </div>
+                            
+                            {/* Menu Items */}
+                            <div className="py-1">
+                              <Link 
+                                to="/dashboard" 
+                                onClick={handleLinkClick}
+                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-700 transition-colors"
+                              >
+                                Dashboard
+                              </Link>
+                              <Link 
+                                to="/profile" 
+                                onClick={handleLinkClick}
+                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-700 transition-colors"
+                              >
+                                Profile Settings
+                              </Link>
+                              <Link 
+                                to="/orders" 
+                                onClick={handleLinkClick}
+                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-700 transition-colors"
+                              >
+                                My Orders
+                              </Link>
+                              
+                              {/* Admin Link */}
+                              {isAdmin() && (
+                                <>
+                                  <hr className="my-1 border-gray-200" />
+                                  <Link 
+                                    to="/admin" 
+                                    onClick={handleLinkClick}
+                                    className="block px-4 py-2 text-sm text-primary-700 hover:bg-primary-50 font-semibold transition-colors"
+                                  >
+                                    Admin Panel
+                                  </Link>
+                                </>
+                              )}
+                              
+                              {/* Sign Out */}
+                              <hr className="my-1 border-gray-200" />
+                              <button
+                                onClick={handleSignOut}
+                                className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                              >
+                                Sign Out
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      /* Not Authenticated - Login Button */
+                      <Link
+                        to="/login"
+                        className="hidden md:flex px-6 py-3 bg-primary-600 text-white rounded-full 
+                                   font-semibold text-sm hover:bg-primary-700 
+                                   transition-all duration-200 shadow-md hover:shadow-lg
+                                   hover:scale-105"
+                        onClick={handleLinkClick}
+                      >
+                        Login
+                      </Link>
+                    )}
+                  </>
+                )}
 
                 {/* OBJECTIVE 4: TWO CTA BUTTONS - Desktop */}
                 <div className="hidden lg:flex items-center gap-4">
@@ -258,6 +389,37 @@ const Navbar = () => {
             </button>
           </div>
 
+          {/* User Info Section - Mobile */}
+          {!loading && isAuthenticated() && (
+            <div className="mb-6 p-4 bg-primary-50 rounded-xl">
+              <div className="flex items-center space-x-3">
+                <img 
+                  src={user?.photoURL || '/default-avatar.png'} 
+                  alt={user?.displayName || 'User'}
+                  className="w-12 h-12 rounded-full border-2 border-primary-600 object-cover"
+                  onError={(e) => {
+                    e.target.src = 'https://ui-avatars.com/api/?name=' + 
+                      encodeURIComponent(user?.displayName || 'User') + 
+                      '&background=16a34a&color=fff';
+                  }}
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-gray-900 truncate">
+                    {user?.displayName || 'User'}
+                  </p>
+                  <p className="text-xs text-gray-600 truncate">
+                    {user?.email}
+                  </p>
+                  {user?.role && (
+                    <span className="inline-block mt-1 bg-primary-600 text-white px-2 py-0.5 rounded text-xs font-semibold capitalize">
+                      {user.role}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Navigation Links */}
           <nav className="space-y-1 mb-6">
             {navLinks.map((link) => (
@@ -280,29 +442,74 @@ const Navbar = () => {
           </nav>
 
           {/* Mobile Action Links */}
-          <div className="space-y-3 mb-6 pt-6 border-t border-gray-200">
-            <Link
-              to="/cart"
-              onClick={handleLinkClick}
-              className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
-            >
-              <HiShoppingCart className="w-6 h-6" />
-              <span className="font-medium">Cart</span>
-              {cartCount > 0 && (
-                <span className="ml-auto bg-accent-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                  {cartCount}
-                </span>
+          {!loading && (
+            <>
+              {isAuthenticated() ? (
+                /* Authenticated User Links */
+                <div className="space-y-3 mb-6 pt-6 border-t border-gray-200">
+                  <Link
+                    to="/dashboard"
+                    onClick={handleLinkClick}
+                    className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                  >
+                    <HiUser className="w-6 h-6" />
+                    <span className="font-medium">Dashboard</span>
+                  </Link>
+                  <Link
+                    to="/profile"
+                    onClick={handleLinkClick}
+                    className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                  >
+                    <HiUser className="w-6 h-6" />
+                    <span className="font-medium">Profile Settings</span>
+                  </Link>
+                  <Link
+                    to="/cart"
+                    onClick={handleLinkClick}
+                    className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                  >
+                    <HiShoppingCart className="w-6 h-6" />
+                    <span className="font-medium">Cart</span>
+                    {cartCount > 0 && (
+                      <span className="ml-auto bg-accent-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                        {cartCount}
+                      </span>
+                    )}
+                  </Link>
+                  
+                  {isAdmin() && (
+                    <Link
+                      to="/admin"
+                      onClick={handleLinkClick}
+                      className="flex items-center gap-3 px-4 py-3 text-primary-700 bg-primary-50 hover:bg-primary-100 rounded-lg transition-colors font-semibold"
+                    >
+                      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                      </svg>
+                      <span>Admin Panel</span>
+                    </Link>
+                  )}
+                </div>
+              ) : (
+                /* Not Authenticated - Show Cart */
+                <div className="space-y-3 mb-6 pt-6 border-t border-gray-200">
+                  <Link
+                    to="/cart"
+                    onClick={handleLinkClick}
+                    className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                  >
+                    <HiShoppingCart className="w-6 h-6" />
+                    <span className="font-medium">Cart</span>
+                    {cartCount > 0 && (
+                      <span className="ml-auto bg-accent-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                        {cartCount}
+                      </span>
+                    )}
+                  </Link>
+                </div>
               )}
-            </Link>
-            <Link
-              to={user ? '/dashboard' : '/login'}
-              onClick={handleLinkClick}
-              className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
-            >
-              <HiUser className="w-6 h-6" />
-              <span className="font-medium">{user ? 'My Account' : 'Login'}</span>
-            </Link>
-          </div>
+            </>
+          )}
 
           {/* OBJECTIVE 4: TWO CTA BUTTONS - Mobile */}
           <div className="space-y-3">
@@ -327,6 +534,32 @@ const Navbar = () => {
             >
               Start Learning
             </Link>
+
+            {/* Login/Logout Button */}
+            {!loading && (
+              <>
+                {isAuthenticated() ? (
+                  <button
+                    onClick={handleSignOut}
+                    className="block w-full px-5 py-3 border-2 border-red-600 
+                               text-red-600 text-center rounded-full font-medium
+                               text-base hover:bg-red-50 transition-colors"
+                  >
+                    Sign Out
+                  </button>
+                ) : (
+                  <Link
+                    to="/login"
+                    onClick={handleLinkClick}
+                    className="block w-full px-5 py-3 border-2 border-gray-600 
+                               text-gray-700 text-center rounded-full font-medium
+                               text-base hover:bg-gray-50 transition-colors"
+                  >
+                    Login
+                  </Link>
+                )}
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Footer */}

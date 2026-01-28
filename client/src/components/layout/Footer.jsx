@@ -168,7 +168,7 @@ const Footer = () => {
                   href="tel:+254700000000"
                   className="text-gray-400 hover:text-primary-500 transition-colors"
                 >
-                  +254 700 000 000
+                  +254 790 694 608
                 </a>
               </li>
               <li className="flex items-start space-x-3">

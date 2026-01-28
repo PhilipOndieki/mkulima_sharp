@@ -9,17 +9,49 @@ service cloud.firestore {
     
     function isAdmin() {
       return isAuthenticated() && 
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+             request.auth.token.role == 'admin';
     }
     
     function isDispatcher() {
       return isAuthenticated() && 
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'dispatcher'];
+             request.auth.token.role in ['admin', 'dispatcher'];
     }
     
     function isDriver() {
       return isAuthenticated() && 
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'dispatcher', 'driver'];
+             request.auth.token.role in ['admin', 'dispatcher', 'driver'];
+    }
+    
+    // Enhanced users collection rules
+    match /users/{userId} {
+      // Read: User can read own profile, admins can read all
+      allow read: if isAuthenticated() && 
+                     (request.auth.uid == userId || isAdmin());
+      
+      // Create: Only authenticated users creating their own profile
+      // Must set role to 'customer' (cannot self-assign admin)
+      // Must set email to authenticated email (cannot fake)
+      allow create: if isAuthenticated() && 
+                       request.auth.uid == userId &&
+                       request.resource.data.role == 'customer' &&
+                       request.resource.data.email == request.auth.token.email &&
+                       request.resource.data.keys().hasAll(['email', 'displayName', 'role', 'createdAt', 'uid']) &&
+                       // Prevent additional fields that could be security risks
+                       !request.resource.data.keys().hasAny(['isAdmin', 'permissions', 'customClaims']);
+      
+      // Update: Users can only update their own profile
+      // Cannot change role (prevents privilege escalation)
+      // Can only update whitelisted fields
+      allow update: if isAuthenticated() && 
+                       request.auth.uid == userId &&
+                       request.resource.data.role == resource.data.role &&
+                       request.resource.data.email == resource.data.email &&
+                       request.resource.data.uid == resource.data.uid &&
+                       request.resource.data.diff(resource.data).affectedKeys()
+                         .hasOnly(['displayName', 'phone', 'address', 'photoURL', 'updatedAt', 'lastLoginAt', 'loginCount']);
+      
+      // Delete: Only admins can delete user accounts
+      allow delete: if isAdmin();
     }
     
     // Products - public read, admin write
@@ -32,9 +64,10 @@ service cloud.firestore {
     match /orders/{orderId} {
       allow read: if isAuthenticated() && 
                      (resource.data.userId == request.auth.uid || 
-                      isDispatcher());
+                      isDriver());
       allow create: if isAuthenticated() && 
-                       request.resource.data.userId == request.auth.uid;
+                       request.resource.data.userId == request.auth.uid &&
+                       request.resource.data.keys().hasAll(['userId', 'createdAt', 'status']);
       allow update: if isAuthenticated() && 
                        (resource.data.userId == request.auth.uid || 
                         isDriver());
@@ -45,9 +78,10 @@ service cloud.firestore {
     match /payments/{paymentId} {
       allow read: if isAuthenticated() && 
                      (resource.data.userId == request.auth.uid || isAdmin());
-      allow create: if isAuthenticated();
+      allow create: if isAuthenticated() &&
+                       request.resource.data.userId == request.auth.uid;
       allow update: if isAdmin();
-      allow delete: if false; // Never delete payments
+      allow delete: if false; // Never delete payments (audit trail)
     }
     
     // Invoices - user and admin access
@@ -55,17 +89,7 @@ service cloud.firestore {
       allow read: if isAuthenticated() && 
                      (resource.data.userId == request.auth.uid || isAdmin());
       allow create, update: if isAdmin();
-      allow delete: if false; // Never delete invoices
-    }
-    
-    // Users - own profile + admin access
-    match /users/{userId} {
-      allow read: if isAuthenticated() && 
-                     (request.auth.uid == userId || isAdmin());
-      allow create: if isAuthenticated() && request.auth.uid == userId;
-      allow update: if isAuthenticated() && 
-                       (request.auth.uid == userId || isAdmin());
-      allow delete: if isAdmin();
+      allow delete: if false; // Never delete invoices (audit trail)
     }
     
     // Academy Content - public read, admin write
@@ -77,9 +101,15 @@ service cloud.firestore {
     // Contact Messages - create only, admin read
     match /contactMessages/{messageId} {
       allow read: if isAdmin();
-      allow create: if true;
+      allow create: if true; // Anyone can submit contact form
       allow update: if isAdmin();
       allow delete: if isAdmin();
+    }
+    
+    // Audit Logs - admin read only, system write (via Cloud Functions)
+    match /auditLogs/{logId} {
+      allow read: if isAdmin();
+      allow write: if false; // Only Cloud Functions can write logs
     }
   }
 }
