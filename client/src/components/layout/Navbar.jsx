@@ -106,16 +106,18 @@ const Navbar = () => {
               </div>
             </div>
           </div>
-          
-          {/* DIVIDING LINE - Inset from edges */}
+
+          {/* DIVIDING LINE - Full width aligned with content */}
           <div 
             className={clsx(
-              "absolute bottom-0 left-0 right-0 flex justify-center",
+              "absolute bottom-0 left-1/4 right-0",
               "transition-opacity duration-400",
               shouldCollapseTop ? "opacity-0" : "opacity-100"
             )}
           >
-            <div className="w-[calc(100%-8rem)] md:w-[calc(100%-12rem)] h-px bg-gray-200" />
+            <div className="container-custom px-8 md:px-10 lg:px-12">
+              <div className="h-[2px] bg-gradient-to-l from-gray-600 via-gray-300 to-transparent" />
+            </div>
           </div>
         </div>
 
@@ -124,13 +126,13 @@ const Navbar = () => {
           <div className="container-custom px-8 md:px-10 lg:px-12">
             <div className="flex items-center justify-between h-15 md:h-16 lg:h-20">
               
-              {/* Left: LOGO - OBJECTIVE 2: Perfect fit within navbar */}
-              <div className="relative flex items-center">
+              {/* Left: LOGO - Centered vertically and slightly left */}
+              <div className="relative flex items-center -ml-2 md:-ml-10">
                 <Link 
                   to="/" 
                   onClick={handleLinkClick}
                   aria-label="Mkulima Sharp Home"
-                  className="flex items-center"
+                  className="flex items-center -mt-2 md:-mt-3 lg:-mt-10"
                 >
                   {/* Full Logo - Perfectly fitted */}
                   <img 
@@ -140,7 +142,6 @@ const Navbar = () => {
                   />
                 </Link>
               </div>
-
               {/* Center: DESKTOP NAVIGATION - OBJECTIVE 1: Kenchic-exact spacing */}
               <nav className="hidden lg:flex items-center justify-center flex-1 gap-7 xl:gap-8">
                 {navLinks.map((link) => (
