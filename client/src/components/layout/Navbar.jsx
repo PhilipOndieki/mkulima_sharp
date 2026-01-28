@@ -134,7 +134,7 @@ const Navbar = () => {
                 >
                   {/* Full Logo - Perfectly fitted */}
                   <img 
-                    src="/logo.svg" 
+                    src="/logo.png" 
                     alt="Mkulima Sharp - Premium Poultry Farming" 
                     className="h-20 md:h-24 lg:h-28 w-auto transition-all duration-300 ease-in-out"
                   />

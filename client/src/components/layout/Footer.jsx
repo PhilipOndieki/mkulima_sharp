@@ -43,7 +43,7 @@ const Footer = () => {
           {/* Company Info */}
           <div>
             <img 
-              src="/logo-white.svg" 
+              src="/logo.png" 
               alt="Mkulima Sharp" 
               className="h-10 mb-4"
               onError={(e) => {
