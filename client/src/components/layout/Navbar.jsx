@@ -98,7 +98,7 @@ const Navbar = () => {
               {/* Right: Tagline + Kenya Badge */}
               <div className="flex items-center gap-3 md:gap-6 text-sm">
                 <span className="hidden md:inline text-gray-600 font-medium">
-                  African Poultry Development
+                  Africa's Numero Uno
                 </span>
                 <div className="bg-primary-50 px-4 py-1.5 rounded-full">
                   <span className="text-primary-700 font-semibold text-sm">Kenya</span>
@@ -365,7 +365,7 @@ const Navbar = () => {
           {/* Mobile Menu Header with Kenya Badge */}
           <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-200">
             <span className="text-xs text-gray-600 font-medium">
-              African Poultry Development
+              Africa's Numero Uno
             </span>
             <div className="bg-primary-50 px-3 py-1 rounded-full">
               <span className="text-primary-700 font-semibold text-xs">Kenya</span>
