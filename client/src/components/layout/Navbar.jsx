@@ -9,9 +9,9 @@ import { useScrollDirection } from '../../hooks/useScrollDirection';
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, isAuthenticated, signOut, isAdmin, loading } = useAuth();
-  const { cart } = useCart();
+  const { itemCount } = useCart();
   const navigate = useNavigate();
-  const cartCount = cart?.totalItems || 0;
+  const cartCount = itemCount;
   const [showUserMenu, setShowUserMenu] = useState(false);
   
   // OBJECTIVE 3: Scroll behavior with direction detection
@@ -174,9 +174,9 @@ const Navbar = () => {
                   onClick={handleLinkClick}
                 >
                   <HiShoppingCart className="w-8 h-8 lg:w-9 lg:h-9" />
-                  {cartCount > 0 && (
+                  {itemCount > 0 && (
                     <span className="absolute -top-2 -right-2 bg-accent-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                      {cartCount}
+                      { itemCount }
                     </span>
                   )}
                 </Link>

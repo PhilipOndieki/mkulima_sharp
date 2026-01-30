@@ -1,4 +1,4 @@
-import { HiCheckCircle, HiTruck, HiAcademicCap, HiChevronDown } from 'react-icons/hi';
+import { HiCheckCircle, HiTruck, HiAcademicCap } from 'react-icons/hi';
 import AnimatedSection from '../components/common/AnimatedSection';
 import Button from '../components/common/Button';
 import Card from '../components/common/Card';

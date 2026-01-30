@@ -3,7 +3,7 @@ import { useCart } from '../cart/CartContext';
 import Button from './Button';
 
 const ProductCard = ({ product }) => {
-  const { addToCart, isInCart, getItem } = useCart();
+  const { addToCart, getItem } = useCart();
   const [selectedVariant, setSelectedVariant] = useState(
     product.variants?.[0] || null
   );
