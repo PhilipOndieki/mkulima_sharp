@@ -2,14 +2,16 @@ import { useState, useEffect } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { HiMenu, HiX, HiShoppingCart, HiUser } from 'react-icons/hi';
 import { useAuth } from '../../hooks/useAuth';
+import { useCart } from '../cart/CartContext';
 import clsx from 'clsx';
 import { useScrollDirection } from '../../hooks/useScrollDirection';
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, isAuthenticated, signOut, isAdmin, loading } = useAuth();
+  const { cart } = useCart();
   const navigate = useNavigate();
-  const [cartCount, _setCartCount] = useState(0);
+  const cartCount = cart?.totalItems || 0;
   const [showUserMenu, setShowUserMenu] = useState(false);
   
   // OBJECTIVE 3: Scroll behavior with direction detection
