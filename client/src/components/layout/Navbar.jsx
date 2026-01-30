@@ -100,7 +100,7 @@ const Navbar = () => {
               {/* Right: Tagline + Kenya Badge */}
               <div className="flex items-center gap-3 md:gap-6 text-sm">
                 <span className="hidden md:inline text-gray-600 font-medium">
-                  Africa's Numero Uno
+                  Africa's Number One
                 </span>
                 <div className="bg-primary-50 px-4 py-1.5 rounded-full">
                   <span className="text-primary-700 font-semibold text-sm">Kenya</span>
