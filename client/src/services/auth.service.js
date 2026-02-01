@@ -3,13 +3,6 @@
  * 
  * Centralized authentication logic with security best practices
  * Handles Google OAuth, user profile management, and session handling
- * 
- * Security Features:
- * - Input sanitization
- * - Rate limiting (client-side preliminary)
- * - Secure error handling
- * - Audit logging
- * - Token management via Firebase
  */
 
 import { 
@@ -69,22 +62,18 @@ const rateLimitTracker = {
 
 /**
  * Sanitize user input to prevent XSS and injection attacks
- * @param {string} input - User input string
- * @returns {string} Sanitized string
  */
 const sanitizeInput = (input) => {
   if (typeof input !== 'string') return '';
   
   return input
     .trim()
-    .replace(/[<>]/g, '') // Remove potential HTML tags
-    .substring(0, 500); // Limit length
+    .replace(/[<>]/g, '')
+    .substring(0, 500);
 };
 
 /**
  * Validate email format
- * @param {string} email - Email address
- * @returns {boolean} Valid email
  */
 const isValidEmail = (email) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -93,8 +82,6 @@ const isValidEmail = (email) => {
 
 /**
  * Log authentication event (for audit trail)
- * @param {string} event - Event type
- * @param {Object} data - Event data
  */
 const logAuthEvent = (event, data = {}) => {
   const logEntry = {
@@ -104,13 +91,9 @@ const logAuthEvent = (event, data = {}) => {
     ...data
   };
   
-  // In development, log to console
   if (import.meta.env.DEV) {
     console.log('[AUTH EVENT]', logEntry);
   }
-  
-  // In production, send to Firebase Analytics or logging service
-  // TODO: Implement production logging service
 };
 
 /**
@@ -119,16 +102,6 @@ const logAuthEvent = (event, data = {}) => {
 export const authService = {
   /**
    * Sign in with Google OAuth
-   * 
-   * Security measures:
-   * - Rate limiting
-   * - Input validation
-   * - Secure error handling
-   * - Audit logging
-   * 
-   * @param {boolean} rememberMe - Enable persistent session
-   * @returns {Promise<Object>} User object with profile data
-   * @throws {Error} Authentication error with safe message
    */
   signInWithGoogle: async (rememberMe = true) => {
     try {
@@ -160,8 +133,8 @@ export const authService = {
       
       // Security: Set custom parameters for better UX
       provider.setCustomParameters({
-        prompt: 'select_account', // Always show account selection
-        login_hint: '' // No pre-filled email
+        prompt: 'select_account',
+        login_hint: ''
       });
       
       logAuthEvent('auth_attempt_started', {
@@ -190,7 +163,7 @@ export const authService = {
       });
       
       // Create or update user profile in Firestore
-      const userProfile = await this.createOrUpdateUserProfile(user);
+      const userProfile = await authService.createOrUpdateUserProfile(user);
       
       return {
         ...user,
@@ -198,29 +171,18 @@ export const authService = {
       };
       
     } catch (error) {
-      // Security: Log error without sensitive details
       logAuthEvent('auth_error', {
         code: error.code,
         message: 'Authentication failed'
       });
       
-      // Security: Provide user-friendly error messages
-      const safeError = this.handleAuthError(error);
+      const safeError = authService.handleAuthError(error);
       throw safeError;
     }
   },
   
   /**
    * Create or update user profile in Firestore
-   * 
-   * Security measures:
-   * - Input sanitization
-   * - Field validation
-   * - Default role assignment
-   * - Audit trail
-   * 
-   * @param {Object} user - Firebase user object
-   * @returns {Promise<Object>} User profile data
    */
   createOrUpdateUserProfile: async (user) => {
     try {
@@ -229,7 +191,7 @@ export const authService = {
       
       // Sanitize user data
       const displayName = sanitizeInput(user.displayName || 'User');
-      const email = user.email; // Already validated by Firebase
+      const email = user.email;
       const photoURL = user.photoURL || '';
       
       const now = Timestamp.now();
@@ -241,16 +203,14 @@ export const authService = {
           email,
           displayName,
           photoURL,
-          role: 'customer', // Security: Default role
+          role: 'customer',
           phone: '',
           address: '',
           createdAt: now,
           updatedAt: now,
           lastLoginAt: now,
           loginCount: 1,
-          // Security: Track authentication provider
           authProvider: 'google',
-          // Privacy: User consent flags
           acceptedTerms: true,
           acceptedPrivacy: true,
         };
@@ -288,7 +248,6 @@ export const authService = {
     } catch (error) {
       console.error('[AUTH SERVICE] Profile creation/update failed:', error);
       
-      // Security: Don't expose Firestore errors to user
       const safeError = new Error('Failed to create user profile. Please try again.');
       safeError.code = 'auth/profile-creation-failed';
       throw safeError;
@@ -297,13 +256,6 @@ export const authService = {
   
   /**
    * Sign out user
-   * 
-   * Security measures:
-   * - Token revocation
-   * - Session cleanup
-   * - Audit logging
-   * 
-   * @returns {Promise<void>}
    */
   signOut: async () => {
     try {
@@ -316,11 +268,7 @@ export const authService = {
         });
       }
       
-      // Security: Revoke Firebase tokens
       await firebaseSignOut(auth);
-      
-      // Clear any client-side cached data
-      // Note: Firebase handles secure token cleanup
       
       logAuthEvent('auth_signout_success');
       
@@ -331,16 +279,12 @@ export const authService = {
         code: error.code
       });
       
-      // Even if sign out fails, throw error so UI can handle it
       throw new Error('Failed to sign out. Please try again.');
     }
   },
   
   /**
    * Get current user profile from Firestore
-   * 
-   * @param {string} uid - User ID
-   * @returns {Promise<Object|null>} User profile or null
    */
   getUserProfile: async (uid) => {
     try {
@@ -365,15 +309,6 @@ export const authService = {
   
   /**
    * Update user profile
-   * 
-   * Security measures:
-   * - Input sanitization
-   * - Field validation
-   * - Permission check (user can only update own profile)
-   * 
-   * @param {string} uid - User ID
-   * @param {Object} updates - Profile updates
-   * @returns {Promise<Object>} Updated profile
    */
   updateUserProfile: async (uid, updates) => {
     try {
@@ -389,7 +324,6 @@ export const authService = {
       
       for (const field of allowedFields) {
         if (updates[field] !== undefined) {
-          // Sanitize string inputs
           if (typeof updates[field] === 'string') {
             sanitizedUpdates[field] = sanitizeInput(updates[field]);
           } else {
@@ -398,7 +332,6 @@ export const authService = {
         }
       }
       
-      // Add update timestamp
       sanitizedUpdates.updatedAt = serverTimestamp();
       
       const userRef = doc(db, 'users', uid);
@@ -409,8 +342,7 @@ export const authService = {
         updatedFields: Object.keys(sanitizedUpdates)
       });
       
-      // Return updated profile
-      return await this.getUserProfile(uid);
+      return await authService.getUserProfile(uid);
       
     } catch (error) {
       console.error('[AUTH SERVICE] Update profile failed:', error);
@@ -425,14 +357,10 @@ export const authService = {
   
   /**
    * Check authentication state
-   * 
-   * @param {Function} callback - Callback function with user data
-   * @returns {Function} Unsubscribe function
    */
   onAuthStateChange: (callback) => {
     return onAuthStateChanged(auth, async (user) => {
       if (user) {
-        // Get full profile from Firestore
         const profile = await authService.getUserProfile(user.uid);
         callback({
           ...user,
@@ -446,9 +374,6 @@ export const authService = {
   
   /**
    * Verify user role
-   * 
-   * @param {string} uid - User ID
-   * @returns {Promise<string|null>} User role or null
    */
   verifyUserRole: async (uid) => {
     try {
@@ -462,15 +387,10 @@ export const authService = {
   
   /**
    * Check if user has specific role
-   * 
-   * @param {string} uid - User ID
-   * @param {string} requiredRole - Required role
-   * @returns {Promise<boolean>} Has role
    */
   hasRole: async (uid, requiredRole) => {
     const userRole = await authService.verifyUserRole(uid);
     
-    // Role hierarchy
     const roleHierarchy = {
       admin: ['admin', 'dispatcher', 'driver', 'customer'],
       dispatcher: ['dispatcher', 'driver', 'customer'],
@@ -483,11 +403,6 @@ export const authService = {
   
   /**
    * Handle authentication errors securely
-   * 
-   * Security: Don't expose internal error details
-   * 
-   * @param {Error} error - Original error
-   * @returns {Error} Safe error for user display
    */
   handleAuthError: (error) => {
     const errorMessages = {
@@ -513,8 +428,6 @@ export const authService = {
   
   /**
    * Get remaining rate limit attempts
-   * 
-   * @returns {number} Remaining attempts
    */
   getRemainingAttempts: () => {
     return rateLimitTracker.getRemainingAttempts();
