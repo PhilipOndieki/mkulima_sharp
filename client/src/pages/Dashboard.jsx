@@ -20,7 +20,7 @@ import {
  * Mobile-first responsive design
  */
 const Dashboard = () => {
-  const { user, isAdmin, refreshUser } = useAuth();
+  const { user, isAdmin } = useAuth();
   const [recentOrders, setRecentOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 

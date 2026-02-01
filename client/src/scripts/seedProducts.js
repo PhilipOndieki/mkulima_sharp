@@ -13,12 +13,9 @@
 import { initializeApp } from 'firebase/app';
 import { 
   getFirestore, 
-  collection, 
   doc, 
-  setDoc, 
   writeBatch,
   serverTimestamp,
-  Timestamp
 } from 'firebase/firestore';
 import dotenv from 'dotenv';
 
