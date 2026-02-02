@@ -6,7 +6,7 @@
 set -e  # Exit on error
 
 echo "🚀 Mkulima Sharp Deployment Script"
-echo "=================================="
+echo "=============="
 echo ""
 
 # Check if Firebase CLI is installed

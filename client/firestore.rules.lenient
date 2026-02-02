@@ -1,0 +1,52 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    //  PRODUCTS 
+    // Allow all reads and writes for seeding
+    // TODO: Restrict to admin-only writes after seeding
+    match /products/{productId} {
+      allow read: if true;   // Public read
+      allow write: if true;  // TEMPORARY: Allow all writes for seeding
+    }
+    
+    //  USERS 
+    // Allow all reads and writes for user registration
+    // TODO: Restrict to own user data after seeding
+    match /users/{userId} {
+      allow read: if true;   // TEMPORARY: Allow all reads
+      allow write: if true;  // TEMPORARY: Allow all writes for user creation
+    }
+    
+    //  CARTS 
+    // Allow all reads and writes for testing
+    // TODO: Restrict to own cart after seeding
+    match /carts/{userId} {
+      allow read: if true;   // TEMPORARY: Allow all reads
+      allow write: if true;  // TEMPORARY: Allow all writes
+    }
+    
+    //  ORDERS 
+    // Allow all reads and writes for testing
+    // TODO: Restrict to own orders after seeding
+    match /orders/{orderId} {
+      allow read: if true;   // TEMPORARY: Allow all reads
+      allow write: if true;  // TEMPORARY: Allow all writes
+    }
+    
+    //  CATEGORIES 
+    // Allow all reads and writes
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if true;  // TEMPORARY: For seeding
+    }
+    
+    //  TESTIMONIALS 
+    // Allow all reads and writes
+    match /testimonials/{testimonialId} {
+      allow read: if true;
+      allow write: if true;  // TEMPORARY: For seeding
+    }
+  }
+}
+
