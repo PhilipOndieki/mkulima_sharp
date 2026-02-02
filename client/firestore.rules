@@ -12,7 +12,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    //  HELPER FUNCTIONS 
+    // ==================== HELPER FUNCTIONS ====================
     
     /**
      * Check if user is authenticated
@@ -52,7 +52,7 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.uid == userId;
     }
     
-    //  PRODUCTS 
+    // ==================== PRODUCTS ====================
     /**
      * Products Collection
      * - Public read access
@@ -66,7 +66,7 @@ service cloud.firestore {
       allow create, update, delete: if isAdmin();
     }
     
-    //  USERS 
+    // ==================== USERS ====================
     /**
     * Users Collection
     * - Users can read their own data
@@ -99,7 +99,7 @@ service cloud.firestore {
                       get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
     
-    //  CARTS 
+    // ==================== CARTS ====================
     /**
      * Carts Collection
      * - Users can manage their own cart
@@ -111,7 +111,7 @@ service cloud.firestore {
       allow write: if isAuthenticated() && isOwner(userId);
     }
     
-    //  ORDERS 
+    // ==================== ORDERS ====================
     /**
      * Orders Collection
      * - Users can read their own orders
@@ -119,29 +119,27 @@ service cloud.firestore {
      * - Drivers/dispatchers can update order status
      * - Admins have full access
      */
+     
     match /orders/{orderId} {
-      // Users can read their own orders, staff can read all
-      allow read: if isAuthenticated() && (
-        resource.data.userId == request.auth.uid || 
-        isDriver() || 
-        isAdmin()
-      );
+      // Users can read their own orders, admins can read all
+      allow read: if request.auth != null && 
+                    (resource.data.userId == request.auth.uid || 
+                      get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
       
       // Users can create orders
-      allow create: if isAuthenticated() && 
-                       request.resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null && 
+                      request.resource.data.userId == request.auth.uid &&
+                      request.resource.data.status == 'pending_confirmation';
       
-      // Drivers can update order status, admins can update everything
-      allow update: if isAuthenticated() && (
-        (isDriver() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt'])) ||
-        isAdmin()
-      );
+      // Only admins can update orders
+      allow update: if request.auth != null &&
+                      get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
       
       // Only admins can delete orders
-      allow delete: if isAdmin();
+      allow delete: if request.auth != null &&
+                      get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
-    
-    //  CATEGORIES 
+    // ==================== CATEGORIES ====================
     /**
      * Categories Collection
      * - Public read access
@@ -152,7 +150,7 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
     
-    //  TESTIMONIALS 
+    // ==================== TESTIMONIALS ====================
     /**
      * Testimonials Collection
      * - Public read access
@@ -163,7 +161,7 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
     
-    //  PARTNERS 
+    // ==================== PARTNERS ====================
     /**
      * Partners Collection
      * - Public read access
@@ -174,7 +172,7 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
     
-    //  QUOTES 
+    // ==================== QUOTES ====================
     /**
      * Quote Requests Collection
      * - Users can read their own quotes
@@ -194,7 +192,7 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
     
-    //  NOTIFICATIONS 
+    // ==================== NOTIFICATIONS ====================
     /**
      * Notifications Collection
      * - Users can read their own notifications
@@ -209,7 +207,7 @@ service cloud.firestore {
                                resource.data.userId == request.auth.uid;
     }
     
-    //  DEFAULT DENY 
+    // ==================== DEFAULT DENY ====================
     /**
      * Deny all other access by default
      */

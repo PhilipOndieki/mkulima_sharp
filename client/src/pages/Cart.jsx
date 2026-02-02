@@ -239,15 +239,15 @@ const CartSummary = ({ cart }) => {
       </div>
 
       {/* Checkout Button */}
-      <Button
-        variant="primary"
-        size="lg"
-        fullWidth
-        onClick={() => navigate('/checkout')}
-      >
-        Proceed to Checkout
-      </Button>
-
+      <Link to="/checkout">
+        <Button 
+          variant="primary" 
+          size="lg" 
+          fullWidth
+        >
+          Proceed to Checkout
+        </Button>
+      </Link>
       {/* Continue Shopping */}
       <Link to="/products">
         <Button variant="outline" size="md" fullWidth className="mt-3">

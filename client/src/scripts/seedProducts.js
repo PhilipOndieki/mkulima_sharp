@@ -45,7 +45,7 @@ const placeholderImages = {
 
 // Product data array with all products from PDF
 const products = [
-  //  FEEDERS 
+  // ==================== FEEDERS ====================
   {
     id: "standard-feeders",
     name: "Standard Poultry Feeders",
@@ -233,7 +233,7 @@ const products = [
     isActive: true
   },
 
-  //  DRINKERS 
+  // ==================== DRINKERS ====================
   {
     id: "nipple-systems",
     name: "Nipple Drinker Systems",
@@ -377,7 +377,7 @@ const products = [
     isActive: true
   },
 
-  //  BROODING EQUIPMENT 
+  // ==================== BROODING EQUIPMENT ====================
   {
     id: "brooding-pots",
     name: "Traditional Brooding Pots",
@@ -516,7 +516,7 @@ const products = [
     isActive: true
   },
 
-  //  AUTOMATIC INCUBATORS 
+  // ==================== AUTOMATIC INCUBATORS ====================
   {
     id: "small-incubators",
     name: "Small Capacity Incubators",
@@ -611,7 +611,7 @@ const products = [
     isActive: true
   },
 
-  //  CAGES & MESH 
+  // ==================== CAGES & MESH ====================
   {
     id: "poultry-cages",
     name: "Poultry Cages",

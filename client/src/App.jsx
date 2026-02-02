@@ -4,6 +4,11 @@ import ProtectedRoute, { AdminRoute } from './components/ProtectedRoute';
 import { CartProvider } from './components/cart/CartContext'; 
 import Home from './pages/Home';
 
+// Admin Components (NOT lazy loaded for better admin UX)
+import AdminLayout from './components/admin/AdminLayout';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminOrders from './pages/admin/AdminOrders';
+import AdminProducts from './pages/admin/AdminProducts';
 // Lazy load other pages for better performance
 import { lazy, Suspense } from 'react';
 
@@ -21,8 +26,14 @@ const Login = lazy(() => import('./pages/Login'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Profile = lazy(() => import('./pages/Profile'));
 
-// Cart Page - NOW USING REAL CART
+// Cart Page
 const Cart = lazy(() => import('./pages/Cart'));
+
+// Order Pages
+const Checkout = lazy(() => import('./pages/Checkout'));
+const OrderConfirmation = lazy(() => import('./pages/OrderConfirmation'));
+const MyOrders = lazy(() => import('./pages/MyOrders'));
+const OrderDetails = lazy(() => import('./pages/OrderDetails'));
 
 // Loading component
 const PageLoader = () => (
@@ -37,11 +48,26 @@ const PageLoader = () => (
 function App() {
   return (
     <Router>
-      {/* WRAP ENTIRE APP WITH CART PROVIDER */}
       <CartProvider>
         <Suspense fallback={<PageLoader />}>
           <Routes>
-            {/* Public Routes with Layout */}
+            {/*
+                ============================================
+                ADMIN ROUTES (Separate from public layout)
+                ============================================
+                */}
+            <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
+              <Route index element={<AdminDashboard />} />
+              <Route path="orders" element={<AdminOrders />} />
+              <Route path="products" element={<AdminProducts />} />
+              <Route path="admin/orders" element={<AdminRoute><AdminOrders /></AdminRoute>} />
+            </Route>
+
+            {/*
+                ============================================
+                PUBLIC ROUTES (With public navbar/footer)
+                ============================================
+                */}
             <Route path="/" element={<Layout />}>
               {/* Home */}
               <Route index element={<Home />} />
@@ -57,8 +83,12 @@ function App() {
               
               {/* Authentication Routes */}
               <Route path="login" element={<Login />} />
-              
+
               {/* Protected Routes - Require Authentication */}
+              <Route path="checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+              <Route path="order-confirmation" element={<ProtectedRoute><OrderConfirmation /></ProtectedRoute>} />
+              <Route path="my-orders" element={<ProtectedRoute><MyOrders /></ProtectedRoute>} />
+              <Route path="my-orders/:orderId" element={<ProtectedRoute><OrderDetails /></ProtectedRoute>} />
               <Route 
                 path="dashboard" 
                 element={
@@ -81,19 +111,31 @@ function App() {
                 path="orders" 
                 element={
                   <ProtectedRoute>
-                    <div className="min-h-screen container-custom py-12">
-                      <h1 className="text-3xl font-bold mb-4">My Orders</h1>
-                      <p className="text-gray-600">Order history and tracking coming soon...</p>
-                    </div>
+                    <MyOrders />
                   </ProtectedRoute>
                 } 
               />
-              
-              {/* CART PAGE - NOW USES REAL CART DATA */}
+
+              {/* Checkout Pages */}
               <Route 
-                path="cart" 
-                element={<Cart />}
+                path="checkout" 
+                element={
+                  <ProtectedRoute>
+                    <Checkout />
+                  </ProtectedRoute>
+                } 
               />
+
+              <Route 
+                path="order-confirmation" 
+                element={
+                  <ProtectedRoute>
+                    <OrderConfirmation />
+                  </ProtectedRoute>
+                } 
+              />
+              {/* Cart Page */}
+              <Route path="cart" element={<Cart />} />
               
               <Route 
                 path="settings" 
@@ -104,33 +146,6 @@ function App() {
                       <p className="text-gray-600">Account settings coming soon...</p>
                     </div>
                   </ProtectedRoute>
-                } 
-              />
-              
-              {/* Admin Routes - Require Admin Role */}
-              <Route 
-                path="admin/*" 
-                element={
-                  <AdminRoute>
-                    <div className="min-h-screen container-custom py-12">
-                      <h1 className="text-3xl font-bold mb-4">Admin Dashboard</h1>
-                      <p className="text-gray-600">Admin dashboard coming soon...</p>
-                      <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div className="bg-white p-6 rounded-xl shadow-card">
-                          <h3 className="font-bold text-lg mb-2">Manage Products</h3>
-                          <p className="text-gray-600 text-sm">Add, edit, or remove products from catalog</p>
-                        </div>
-                        <div className="bg-white p-6 rounded-xl shadow-card">
-                          <h3 className="font-bold text-lg mb-2">Manage Orders</h3>
-                          <p className="text-gray-600 text-sm">View and process customer orders</p>
-                        </div>
-                        <div className="bg-white p-6 rounded-xl shadow-card">
-                          <h3 className="font-bold text-lg mb-2">Manage Users</h3>
-                          <p className="text-gray-600 text-sm">View users and assign roles</p>
-                        </div>
-                      </div>
-                    </div>
-                  </AdminRoute>
                 } 
               />
               
@@ -149,7 +164,6 @@ function App() {
                         explains how we collect, use, disclose, and safeguard your information 
                         when you use our platform.
                       </p>
-                      {/* Rest of privacy policy content */}
                     </div>
                   </div>
                 } 
@@ -167,7 +181,6 @@ function App() {
                       <p className="text-gray-700">
                         Please read these Terms of Service carefully before using Mkulima Sharp.
                       </p>
-                      {/* Rest of terms content */}
                     </div>
                   </div>
                 } 
@@ -187,11 +200,12 @@ function App() {
                         We currently deliver to all counties in Kenya. Delivery times may vary 
                         depending on your location.
                       </p>
-                      {/* Rest of shipping policy content */}
                     </div>
                   </div>
                 } 
               />
+
+
               
               {/* 404 Page */}
               <Route path="*" element={

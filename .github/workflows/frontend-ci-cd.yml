@@ -74,7 +74,7 @@ jobs:
       working-directory: ./client
       run: |
         echo "📊 Build Statistics:"
-        echo ""
+        echo "===================="
         du -sh dist
         echo ""
         echo "✅ Build successful!"
