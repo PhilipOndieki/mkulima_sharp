@@ -95,7 +95,7 @@ const Home = () => {
         {/* Background Image with Gradient Overlay */}
         <div className="absolute inset-0 z-0">
           <img 
-            src="/rooster-family.png" 
+            src="/rooster-family.webp" 
             alt="Poultry Farming" 
             className="w-full h-full object-cover"
             onError={(e) => {

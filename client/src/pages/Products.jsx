@@ -46,7 +46,7 @@ const Products = () => {
           });
         });
 
-        console.log(`✅ Loaded ${productsData.length} products from Firestore`);
+        console.log(` Loaded ${productsData.length} products from Firestore`);
         setProducts(productsData);
         setFilteredProducts(productsData);
 
@@ -72,7 +72,7 @@ const Products = () => {
         setCategories(categoriesArray);
 
       } catch (err) {
-        console.error('❌ Error fetching products:', err);
+        console.error('Error fetching products:', err);
         setError('Failed to load products. Please try again later.');
       } finally {
         setLoading(false);

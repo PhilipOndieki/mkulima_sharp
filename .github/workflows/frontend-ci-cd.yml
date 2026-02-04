@@ -35,8 +35,8 @@ jobs:
       working-directory: ./client
       run: npm run lint
     
-    - name: ✅ Quality check passed
-      run: echo "✅ All quality checks passed!"
+    - name:  Quality check passed
+      run: echo " All quality checks passed!"
 
   build:
     name: Build Application
@@ -77,7 +77,7 @@ jobs:
         echo "===================="
         du -sh dist
         echo ""
-        echo "✅ Build successful!"
+        echo " Build successful!"
     
     - name: 📤 Upload build artifacts
       uses: actions/upload-artifact@v4
@@ -132,5 +132,5 @@ jobs:
       working-directory: ./client
       run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
       
-    - name: ✅ Deployment complete
+    - name:  Deployment complete
       run: echo "🎉 Production deployment successful!"

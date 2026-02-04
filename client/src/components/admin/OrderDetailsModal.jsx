@@ -67,7 +67,7 @@ const OrderDetailsModal = ({ isOpen, onClose, order, onOrderUpdated }) => {
       }, 1500);
 
     } catch (err) {
-      console.error('❌ Error updating status:', err);
+      console.error('Error updating status:', err);
       setError('Failed to update order status. Please try again.');
     } finally {
       setIsUpdating(false);
@@ -99,7 +99,7 @@ const OrderDetailsModal = ({ isOpen, onClose, order, onOrderUpdated }) => {
       }, 1500);
 
     } catch (err) {
-      console.error('❌ Error adding note:', err);
+      console.error('Error adding note:', err);
       setError('Failed to add note. Please try again.');
     } finally {
       setIsUpdating(false);

@@ -149,14 +149,14 @@ export const orderService = {
       // Add to Firestore
       const docRef = await addDoc(collection(db, 'orders'), order);
 
-      console.log('✅ Order created:', docRef.id);
+      console.log(' Order created:', docRef.id);
 
       return {
         id: docRef.id,
         ...order
       };
     } catch (error) {
-      console.error('❌ Error creating order:', error);
+      console.error('Error creating order:', error);
       throw new Error('Failed to create order. Please try again.');
     }
   },
@@ -181,7 +181,7 @@ export const orderService = {
 
       return null;
     } catch (error) {
-      console.error('❌ Error fetching order:', error);
+      console.error('Error fetching order:', error);
       throw error;
     }
   },
@@ -213,7 +213,7 @@ export const orderService = {
 
       return orders;
     } catch (error) {
-      console.error('❌ Error fetching user orders:', error);
+      console.error('Error fetching user orders:', error);
       throw error;
     }
   },
@@ -250,7 +250,7 @@ export const orderService = {
 
       return orders;
     } catch (error) {
-      console.error('❌ Error fetching all orders:', error);
+      console.error('Error fetching all orders:', error);
       throw error;
     }
   },
@@ -308,9 +308,9 @@ export const orderService = {
 
       await updateDoc(orderRef, updates);
 
-      console.log('✅ Order status updated:', orderId, newStatus);
+      console.log(' Order status updated:', orderId, newStatus);
     } catch (error) {
-      console.error('❌ Error updating order status:', error);
+      console.error('Error updating order status:', error);
       throw error;
     }
   },
@@ -346,9 +346,9 @@ export const orderService = {
         updatedAt: serverTimestamp()
       });
 
-      console.log('✅ Admin note added to order:', orderId);
+      console.log(' Admin note added to order:', orderId);
     } catch (error) {
-      console.error('❌ Error adding admin note:', error);
+      console.error('Error adding admin note:', error);
       throw error;
     }
   },
@@ -370,9 +370,9 @@ export const orderService = {
         reason
       );
 
-      console.log('✅ Order cancelled:', orderId);
+      console.log(' Order cancelled:', orderId);
     } catch (error) {
-      console.error('❌ Error cancelling order:', error);
+      console.error('Error cancelling order:', error);
       throw error;
     }
   },
@@ -427,7 +427,7 @@ export const orderService = {
         totalOrders: allOrders.length
       };
     } catch (error) {
-      console.error('❌ Error fetching order stats:', error);
+      console.error('Error fetching order stats:', error);
       return {
         todayOrders: 0,
         pendingConfirmation: 0,

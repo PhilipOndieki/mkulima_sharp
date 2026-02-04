@@ -45,9 +45,9 @@ const OrderDetails = () => {
       }
 
       setOrder(orderData);
-      console.log('✅ Loaded order:', orderData.orderNumber);
+      console.log(' Loaded order:', orderData.orderNumber);
     } catch (err) {
-      console.error('❌ Error fetching order:', err);
+      console.error('Error fetching order:', err);
       setError('Failed to load order details.');
     } finally {
       setLoading(false);
@@ -80,7 +80,7 @@ const OrderDetails = () => {
       setCancelReason('');
 
     } catch (err) {
-      console.error('❌ Error cancelling order:', err);
+      console.error('Error cancelling order:', err);
       alert('Failed to cancel order. Please contact support.');
     } finally {
       setIsCancelling(false);

@@ -61,9 +61,9 @@ const MyOrders = () => {
       };
       setStatusCounts(counts);
 
-      console.log(`✅ Loaded ${ordersData.length} orders for user`);
+      console.log(` Loaded ${ordersData.length} orders for user`);
     } catch (err) {
-      console.error('❌ Error fetching orders:', err);
+      console.error('Error fetching orders:', err);
       setError('Failed to load your orders. Please refresh the page.');
     } finally {
       setLoading(false);

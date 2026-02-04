@@ -9,6 +9,7 @@ import AdminLayout from './components/admin/AdminLayout';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminOrders from './pages/admin/AdminOrders';
 import AdminProducts from './pages/admin/AdminProducts';
+
 // Lazy load other pages for better performance
 import { lazy, Suspense } from 'react';
 
@@ -55,19 +56,18 @@ function App() {
                 ============================================
                 ADMIN ROUTES (Separate from public layout)
                 ============================================
-                */}
+            */}
             <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
               <Route index element={<AdminDashboard />} />
               <Route path="orders" element={<AdminOrders />} />
               <Route path="products" element={<AdminProducts />} />
-              <Route path="admin/orders" element={<AdminRoute><AdminOrders /></AdminRoute>} />
             </Route>
 
             {/*
                 ============================================
                 PUBLIC ROUTES (With public navbar/footer)
                 ============================================
-                */}
+            */}
             <Route path="/" element={<Layout />}>
               {/* Home */}
               <Route index element={<Home />} />
@@ -84,11 +84,13 @@ function App() {
               {/* Authentication Routes */}
               <Route path="login" element={<Login />} />
 
-              {/* Protected Routes - Require Authentication */}
-              <Route path="checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
-              <Route path="order-confirmation" element={<ProtectedRoute><OrderConfirmation /></ProtectedRoute>} />
-              <Route path="my-orders" element={<ProtectedRoute><MyOrders /></ProtectedRoute>} />
-              <Route path="my-orders/:orderId" element={<ProtectedRoute><OrderDetails /></ProtectedRoute>} />
+              {/* Cart Page - Public */}
+              <Route path="cart" element={<Cart />} />
+
+              {/* Checkout - Public (auth required only at order submission) */}
+              <Route path="checkout" element={<Checkout />} />
+
+              {/* Protected User Routes */}
               <Route 
                 path="dashboard" 
                 element={
@@ -108,7 +110,7 @@ function App() {
               />
               
               <Route 
-                path="orders" 
+                path="my-orders" 
                 element={
                   <ProtectedRoute>
                     <MyOrders />
@@ -116,12 +118,11 @@ function App() {
                 } 
               />
 
-              {/* Checkout Pages */}
               <Route 
-                path="checkout" 
+                path="my-orders/:orderId" 
                 element={
                   <ProtectedRoute>
-                    <Checkout />
+                    <OrderDetails />
                   </ProtectedRoute>
                 } 
               />
@@ -134,8 +135,6 @@ function App() {
                   </ProtectedRoute>
                 } 
               />
-              {/* Cart Page */}
-              <Route path="cart" element={<Cart />} />
               
               <Route 
                 path="settings" 
@@ -204,8 +203,6 @@ function App() {
                   </div>
                 } 
               />
-
-
               
               {/* 404 Page */}
               <Route path="*" element={

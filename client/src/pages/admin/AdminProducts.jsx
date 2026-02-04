@@ -68,11 +68,11 @@ const AdminProducts = () => {
         });
       });
 
-      console.log(`✅ Loaded ${productsData.length} products`);
+      console.log(` Loaded ${productsData.length} products`);
       setProducts(productsData);
       setFilteredProducts(productsData);
     } catch (err) {
-      console.error('❌ Error fetching products:', err);
+      console.error('Error fetching products:', err);
       setError('Failed to load products. Please refresh the page.');
     } finally {
       setLoading(false);
@@ -144,7 +144,7 @@ const AdminProducts = () => {
           updatedAt: serverTimestamp()
         });
 
-        console.log('✅ Product updated:', editingProduct.id);
+        console.log(' Product updated:', editingProduct.id);
         setSuccess('Product updated successfully!');
       } else {
         // ADD new product
@@ -158,7 +158,7 @@ const AdminProducts = () => {
 
         await addDoc(collection(db, 'products'), newProduct);
 
-        console.log('✅ Product added');
+        console.log(' Product added');
         setSuccess('Product added successfully!');
       }
 
@@ -172,7 +172,7 @@ const AdminProducts = () => {
       // Clear success message after 3 seconds
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
-      console.error('❌ Error saving product:', err);
+      console.error('Error saving product:', err);
       setError('Failed to save product. Please try again.');
     } finally {
       setSaving(false);
@@ -194,7 +194,7 @@ const AdminProducts = () => {
           updatedAt: serverTimestamp()
         });
 
-        console.log(`✅ Product ${action}d:`, product.id);
+        console.log(` Product ${action}d:`, product.id);
         setSuccess(`Product ${action}d successfully!`);
 
         // Refresh products
@@ -202,7 +202,7 @@ const AdminProducts = () => {
 
         setTimeout(() => setSuccess(null), 3000);
       } catch (err) {
-        console.error(`❌ Error ${action}ing product:`, err);
+        console.error(`Error ${action}ing product:`, err);
         setError(`Failed to ${action} product. Please try again.`);
       }
     }
@@ -221,7 +221,7 @@ const AdminProducts = () => {
           updatedAt: serverTimestamp()
         });
 
-        console.log('✅ Product deleted (soft):', product.id);
+        console.log(' Product deleted (soft):', product.id);
         setSuccess('Product deleted successfully!');
 
         // Refresh products
@@ -229,7 +229,7 @@ const AdminProducts = () => {
 
         setTimeout(() => setSuccess(null), 3000);
       } catch (err) {
-        console.error('❌ Error deleting product:', err);
+        console.error('Error deleting product:', err);
         setError('Failed to delete product. Please try again.');
       }
     }

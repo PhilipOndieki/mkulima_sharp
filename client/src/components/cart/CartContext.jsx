@@ -85,7 +85,7 @@ export const CartProvider = ({ children }) => {
       await saveCart(updatedCart);
       
       // Optional: Show toast notification
-      console.log('✅ Added to cart successfully');
+      console.log(' Added to cart successfully');
       
       return { success: true };
     } catch (error) {
@@ -113,7 +113,7 @@ export const CartProvider = ({ children }) => {
       const updatedCart = cartService.updateItemQuantity(cart, productId, variantId, newQuantity);
       await saveCart(updatedCart);
       
-      console.log('✅ Quantity updated successfully');
+      console.log(' Quantity updated successfully');
       
       return { success: true };
     } catch (error) {
@@ -136,7 +136,7 @@ export const CartProvider = ({ children }) => {
       const updatedCart = cartService.removeItem(cart, productId, variantId);
       await saveCart(updatedCart);
       
-      console.log('✅ Item removed successfully');
+      console.log(' Item removed successfully');
       
       return { success: true };
     } catch (error) {
@@ -157,7 +157,7 @@ export const CartProvider = ({ children }) => {
       const emptyCart = cartService.clearCart();
       await saveCart(emptyCart);
       
-      console.log('✅ Cart cleared successfully');
+      console.log(' Cart cleared successfully');
       
       return { success: true };
     } catch (error) {

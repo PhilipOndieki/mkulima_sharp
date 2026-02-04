@@ -1,6 +1,7 @@
 // src/firebase.js
 import { initializeApp } from 'firebase/app';
 import { getAuth} from 'firebase/auth';
+import { writeBatch, doc, serverTimestamp, collection } from 'firebase/firestore';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 // import { getAnalytics } from 'firebase/analytics';
@@ -24,3 +25,7 @@ const storage = getStorage(app);
 // const analytics = import.meta.env.PROD ? getAnalytics(app) : null;
 
 export { auth, db, storage };
+
+// Export to window for browser console access
+window.db = db;
+window.firebaseFirestore = { writeBatch, doc, serverTimestamp, collection };

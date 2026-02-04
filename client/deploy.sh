@@ -12,7 +12,7 @@ echo ""
 # Check if Firebase CLI is installed
 if ! command -v firebase &> /dev/null
 then
-    echo "❌ Firebase CLI is not installed."
+    echo "Firebase CLI is not installed."
     echo "Install it with: npm install -g firebase-tools"
     exit 1
 fi
@@ -20,12 +20,12 @@ fi
 # Check if logged in to Firebase
 if ! firebase projects:list &> /dev/null
 then
-    echo "❌ Not logged in to Firebase."
+    echo "Not logged in to Firebase."
     echo "Run: firebase login"
     exit 1
 fi
 
-echo "✅ Firebase CLI detected"
+echo " Firebase CLI detected"
 echo ""
 
 # Ask for deployment type
@@ -60,11 +60,11 @@ echo "📦 Building frontend..."
 npm run build
 
 if [ $? -ne 0 ]; then
-    echo "❌ Build failed. Please fix errors and try again."
+    echo "Build failed. Please fix errors and try again."
     exit 1
 fi
 
-echo "✅ Build successful"
+echo " Build successful"
 echo ""
 
 # Deploy based on selection
@@ -91,7 +91,7 @@ esac
 
 if [ $? -eq 0 ]; then
     echo ""
-    echo "✅ Deployment successful!"
+    echo " Deployment successful!"
     echo ""
     echo "🌐 Your site is live at:"
     firebase hosting:channel:list | grep "live" | awk '{print $2}'
@@ -100,6 +100,6 @@ if [ $? -eq 0 ]; then
     echo "https://console.firebase.google.com"
 else
     echo ""
-    echo "❌ Deployment failed. Check the errors above."
+    echo "Deployment failed. Check the errors above."
     exit 1
 fi

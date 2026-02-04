@@ -10,6 +10,7 @@ import { HiCheckCircle, HiExclamationCircle } from 'react-icons/hi';
  * Checkout Page
  * 
  * Phase 1: Basic Checkout with Cash on Delivery
+ * Now supports guest checkout - auth required only at order submission
  */
 const Checkout = () => {
   const navigate = useNavigate();
@@ -18,9 +19,12 @@ const Checkout = () => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
 
   // Delivery form state
   const [deliveryData, setDeliveryData] = useState({
+    name: '',
+    email: '',
     street: '',
     city: '',
     county: '',
@@ -41,28 +45,26 @@ const Checkout = () => {
     'Turkana', 'Uasin Gishu', 'Vihiga', 'Wajir', 'West Pokot'
   ];
 
-  // Initialize delivery data from user profile
+  // Check if cart is empty and redirect
   useEffect(() => {
-    if (!isAuthenticated()) {
-      navigate('/login', { state: { from: { pathname: '/checkout' } } });
-      return;
-    }
-
     if (cart.items.length === 0) {
       navigate('/cart');
       return;
     }
+  }, [cart.items.length, navigate]);
 
-    // Pre-fill from user profile if available
-    if (user) {
+  // Pre-fill form with user data if authenticated
+  useEffect(() => {
+    if (isAuthenticated() && user) {
       setDeliveryData(prev => ({
         ...prev,
+        name: user.displayName || prev.name,
+        email: user.email || prev.email,
         phone: user.phone || prev.phone,
-        // Parse address if stored as single string
         street: user.address || prev.street
       }));
     }
-  }, [user, isAuthenticated, navigate, cart.items.length]);
+  }, [user, isAuthenticated]);
 
   // Calculate delivery fee based on county
   const calculateDeliveryFee = (county) => {
@@ -88,6 +90,14 @@ const Checkout = () => {
    * Validate delivery form
    */
   const validateForm = () => {
+    if (!deliveryData.name.trim()) {
+      setError('Full name is required');
+      return false;
+    }
+    if (!deliveryData.email.trim()) {
+      setError('Email is required');
+      return false;
+    }
     if (!deliveryData.street.trim()) {
       setError('Street address is required');
       return false;
@@ -112,6 +122,13 @@ const Checkout = () => {
       return false;
     }
 
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(deliveryData.email)) {
+      setError('Please enter a valid email address');
+      return false;
+    }
+
     return true;
   };
 
@@ -122,19 +139,41 @@ const Checkout = () => {
     e.preventDefault();
     setError(null);
 
-    // Validate form
+    // Validate form first
     if (!validateForm()) {
       return;
     }
 
+    // Check authentication - prompt if not logged in
+    if (!isAuthenticated()) {
+      // Save form data to session storage
+      sessionStorage.setItem('pendingCheckoutData', JSON.stringify({
+        deliveryData,
+        cartItems: cart.items,
+        cartSubtotal: cart.subtotal
+      }));
+      
+      // Show auth prompt instead of immediate redirect
+      setShowAuthPrompt(true);
+      return;
+    }
+
+    // User is authenticated - proceed with order
+    await submitOrder();
+  };
+
+  /**
+   * Submit order to database
+   */
+  const submitOrder = async () => {
     try {
       setLoading(true);
 
       // Create order
       const order = await orderService.createOrder({
         userId: user.uid,
-        customerName: user.displayName || 'Customer',
-        customerEmail: user.email,
+        customerName: deliveryData.name,
+        customerEmail: deliveryData.email,
         customerPhone: deliveryData.phone,
         cartItems: cart.items,
         cartSubtotal: cart.subtotal,
@@ -149,21 +188,46 @@ const Checkout = () => {
         paymentMethod: 'cod'
       });
 
-      console.log('✅ Order created:', order.orderNumber);
+      console.log(' Order created:', order.orderNumber);
 
       // Clear cart
       await clearCart();
+
+      // Clear any saved checkout data
+      sessionStorage.removeItem('pendingCheckoutData');
 
       // Redirect to confirmation page
       navigate('/order-confirmation', {
         state: { orderId: order.id, orderNumber: order.orderNumber }
       });
     } catch (err) {
-      console.error('❌ Order creation failed:', err);
+      console.error('Order creation failed:', err);
       setError(err.message || 'Failed to place order. Please try again.');
     } finally {
       setLoading(false);
     }
+  };
+
+  /**
+   * Handle redirect to login
+   */
+  const handleLoginRedirect = () => {
+    navigate('/login', { 
+      state: { 
+        from: { pathname: '/checkout' },
+        message: 'Please sign in to complete your order'
+      } 
+    });
+  };
+
+  /**
+   * Handle continue as guest (future feature)
+   */
+  const handleContinueAsGuest = () => {
+    setShowAuthPrompt(false);
+    setError('Guest checkout coming soon! Please sign in to complete your order.');
+    // For now, still require login
+    // In future: create temporary guest user or allow email-only orders
   };
 
   return (
@@ -174,6 +238,60 @@ const Checkout = () => {
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Checkout</h1>
           <p className="text-gray-600">Review your order and complete delivery details</p>
         </div>
+
+        {/* Auth Prompt Modal */}
+        {showAuthPrompt && (
+          <div className="fixed inset-0 z-50 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4">
+              {/* Backdrop */}
+              <div 
+                className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
+                onClick={() => setShowAuthPrompt(false)}
+              ></div>
+
+              {/* Modal */}
+              <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
+                <div className="text-center">
+                  <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-primary-100 mb-4">
+                    <HiExclamationCircle className="h-6 w-6 text-primary-600" />
+                  </div>
+                  
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">
+                    Sign In Required
+                  </h3>
+                  
+                  <p className="text-gray-600 mb-6">
+                    Please sign in to complete your order and track your delivery.
+                  </p>
+
+                  <div className="space-y-3">
+                    <button
+                      onClick={handleLoginRedirect}
+                      className="w-full btn-primary"
+                    >
+                      Sign In to Continue
+                    </button>
+                    
+                    <button
+                      onClick={() => setShowAuthPrompt(false)}
+                      className="w-full btn-secondary"
+                    >
+                      Go Back
+                    </button>
+
+                    {/* Future: Guest Checkout Option */}
+                    {/* <button
+                      onClick={handleContinueAsGuest}
+                      className="w-full text-sm text-gray-600 hover:text-gray-900"
+                    >
+                      Continue as Guest
+                    </button> */}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Error Message */}
         {error && (
@@ -191,10 +309,42 @@ const Checkout = () => {
             {/* Delivery Address Form */}
             <div className="bg-white rounded-xl shadow-card p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-6">
-                Delivery Address
+                Delivery Information
               </h2>
 
               <form className="space-y-4">
+                {/* Full Name */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={deliveryData.name}
+                    onChange={handleInputChange}
+                    className="input-field"
+                    placeholder="e.g., John Doe"
+                    required
+                  />
+                </div>
+
+                {/* Email */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Email Address *
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={deliveryData.email}
+                    onChange={handleInputChange}
+                    className="input-field"
+                    placeholder="e.g., john@example.com"
+                    required
+                  />
+                </div>
+
                 {/* Street Address */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">

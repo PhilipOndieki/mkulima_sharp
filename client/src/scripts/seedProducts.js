@@ -22,7 +22,7 @@ const firebaseConfig = {
 
 // Validate configuration
 if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
-  console.error('❌ Error: Firebase configuration missing!');
+  console.error('Error: Firebase configuration missing!');
   console.error('Please create a .env file with your Firebase credentials.');
   process.exit(1);
 }
@@ -31,630 +31,831 @@ if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-console.log('✅ Firebase initialized successfully');
+console.log(' Firebase initialized successfully');
 console.log(`📍 Project: ${firebaseConfig.projectId}\n`);
 
-// Placeholder images by category
-const placeholderImages = {
-  "Feeders": "https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=800&h=600&fit=crop",
-  "Drinkers": "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&h=600&fit=crop",
-  "Brooding Equipment": "https://images.unsplash.com/photo-1560493676-04071c5f467b?w=800&h=600&fit=crop",
-  "Automatic Incubators": "https://images.unsplash.com/photo-1545082829-e0ba042e5a99?w=800&h=600&fit=crop",
-  "Cages & Mesh": "https://images.unsplash.com/photo-1560493676-04071c5f467b?w=800&h=600&fit=crop"
-};
-
-// Product data array with all products from PDF
+// Product data array - ALL INDIVIDUAL PRODUCTS (NO VARIANTS)
+// Sorted by price within each category: Cheapest → Most Expensive
 const products = [
-  // ==================== FEEDERS ====================
+  // ==========================================
+  // CATEGORY 1: FEEDERS (12 products)
+  // Sorted: Cheapest (WP: 60) → Most Expensive (WP: 600)
+  // ==========================================
   {
-    id: "standard-feeders",
-    name: "Standard Poultry Feeders",
+    id: "baby-feeder",
+    name: "Baby Feeder",
     category: "Feeders",
-    description: "Durable plastic feeders for poultry farming, available in large to medium capacities. Ideal for commercial and backyard farms.",
-    imageUrl: placeholderImages["Feeders"],
-    hasVariants: true,
-    variants: [
-      {
-        id: "12kg",
-        name: "12 KG",
-        sku: "FEED-STD-12KG",
-        wholesalePrice: 600,
-        retailPrice: 750,
-        inStock: true,
-        stockQuantity: 100
-      },
-      {
-        id: "10kg",
-        name: "10 KG",
-        sku: "FEED-STD-10KG",
-        wholesalePrice: 550,
-        retailPrice: 650,
-        inStock: true,
-        stockQuantity: 150
-      },
-      {
-        id: "6kg",
-        name: "6 KG",
-        sku: "FEED-STD-6KG",
-        wholesalePrice: 380,
-        retailPrice: 450,
-        inStock: true,
-        stockQuantity: 200
-      }
-    ],
+    description: "Small feeder ideal for day-old chicks and young birds. Lightweight and easy to clean.",
+    price: 100, // Retail Price (RP)
+    wholesalePrice: 60, // Wholesale Price (WP)
+    imageUrl: "/products/feeders/baby-feeder.webp",
+    sku: "FEED-BABY",
+    inStock: true,
+    stockQuantity: 300,
     unit: "piece",
     minWholesaleQty: 10,
-    isActive: true
+    isActive: true,
+    specifications: {
+      capacity: "Small",
+      material: "Plastic",
+      suitable: "Day-old to 2 weeks"
+    }
   },
   {
-    id: "compact-feeders",
-    name: "Compact Poultry Feeders",
+    id: "long-feeder-small",
+    name: "Long Feeder Small",
     category: "Feeders",
-    description: "Small capacity feeders perfect for chicks and small flocks. Available in multiple sizes for different growth stages.",
-    imageUrl: placeholderImages["Feeders"],
-    hasVariants: true,
-    variants: [
-      {
-        id: "3kg-big",
-        name: "3 KG Big",
-        sku: "FEED-CMP-3KG-BIG",
-        wholesalePrice: 300,
-        retailPrice: 380,
-        inStock: true,
-        stockQuantity: 180
-      },
-      {
-        id: "3kg-small",
-        name: "3 KG Small",
-        sku: "FEED-CMP-3KG-SML",
-        wholesalePrice: 280,
-        retailPrice: 350,
-        inStock: true,
-        stockQuantity: 200
-      },
-      {
-        id: "1.5kg",
-        name: "1.5 KG",
-        sku: "FEED-CMP-1.5KG",
-        wholesalePrice: 150,
-        retailPrice: 180,
-        inStock: true,
-        stockQuantity: 250
-      }
-    ],
+    description: "Compact long feeder for smaller flocks. Space-efficient design.",
+    price: 100, // RP
+    wholesalePrice: 80, // WP
+    imageUrl: "/products/feeders/long-feeder-small.webp",
+    sku: "FEED-LONG-SML",
+    inStock: true,
+    stockQuantity: 120,
     unit: "piece",
     minWholesaleQty: 10,
-    isActive: true
+    isActive: true,
+    specifications: {
+      length: "Small",
+      material: "Plastic",
+      suitable: "Small to medium flocks"
+    }
   },
   {
-    id: "long-feeders",
-    name: "Long Feeders",
+    id: "feeder-1-5kg",
+    name: "1.5 Kg Feeder",
     category: "Feeders",
-    description: "Linear feeding systems for maximizing space efficiency. Ideal for larger flocks and commercial operations.",
-    imageUrl: placeholderImages["Feeders"],
-    hasVariants: true,
-    variants: [
-      {
-        id: "long-24",
-        name: "Long Feeder 24",
-        sku: "FEED-LONG-24",
-        wholesalePrice: 180,
-        retailPrice: 250,
-        inStock: true,
-        stockQuantity: 80
-      },
-      {
-        id: "long-small",
-        name: "Long Feeder Small",
-        sku: "FEED-LONG-SML",
-        wholesalePrice: 80,
-        retailPrice: 100,
-        inStock: true,
-        stockQuantity: 120
-      }
-    ],
+    description: "Compact 1.5kg capacity feeder for small poultry operations.",
+    price: 180, // RP
+    wholesalePrice: 150, // WP
+    imageUrl: "/products/feeders/feeder-1-5kg.webp",
+    sku: "FEED-1-5KG",
+    inStock: true,
+    stockQuantity: 250,
     unit: "piece",
     minWholesaleQty: 10,
-    isActive: true
+    isActive: true,
+    specifications: {
+      capacity: "1.5 Kg",
+      material: "Plastic",
+      suitable: "Small flocks"
+    }
   },
   {
-    id: "feeding-trays",
-    name: "Feeding Trays",
+    id: "long-feeder-24-red",
+    name: "Long Feeder 24 (Red)",
     category: "Feeders",
-    description: "Flat tray feeders for chicks and easy cleaning. Prevents feed wastage and promotes uniform feeding.",
-    imageUrl: placeholderImages["Feeders"],
-    hasVariants: true,
-    variants: [
-      {
-        id: "rectangular",
-        name: "Rectangular Tray",
-        sku: "FEED-TRAY-RECT",
-        wholesalePrice: 400,
-        retailPrice: 450,
-        inStock: true,
-        stockQuantity: 90
-      },
-      {
-        id: "round",
-        name: "Feeding Tray",
-        sku: "FEED-TRAY-RND",
-        wholesalePrice: 200,
-        retailPrice: 250,
-        inStock: true,
-        stockQuantity: 150
-      }
-    ],
+    description: "24-inch red long feeder. Durable and easy to spot in the coop.",
+    price: 250, // RP
+    wholesalePrice: 180, // WP
+    imageUrl: "/products/feeders/long-feeder-24-red.webp",
+    sku: "FEED-LONG-24",
+    inStock: true,
+    stockQuantity: 80,
     unit: "piece",
     minWholesaleQty: 10,
-    isActive: true
+    isActive: true,
+    specifications: {
+      length: "24 inches",
+      material: "Plastic",
+      color: "Red"
+    }
   },
   {
-    id: "baby-feeders",
-    name: "Baby Feeders",
+    id: "feeding-tray-yellow",
+    name: "Feeding Tray (Yellow)",
     category: "Feeders",
-    description: "Specially designed feeders for day-old chicks and young birds. Low height for easy access.",
-    imageUrl: placeholderImages["Feeders"],
-    hasVariants: true,
-    variants: [
-      {
-        id: "baby-standard",
-        name: "Baby Feeder",
-        sku: "FEED-BABY-STD",
-        wholesalePrice: 60,
-        retailPrice: 100,
-        inStock: true,
-        stockQuantity: 300
-      }
-    ],
+    description: "Round yellow feeding tray. Perfect for group feeding of chicks.",
+    price: 250, // RP
+    wholesalePrice: 200, // WP
+    imageUrl: "/products/feeders/feeding-tray-yellow.webp",
+    sku: "FEED-TRAY-YLW",
+    inStock: true,
+    stockQuantity: 150,
     unit: "piece",
     minWholesaleQty: 10,
-    isActive: true
+    isActive: true,
+    specifications: {
+      shape: "Round",
+      material: "Plastic",
+      color: "Yellow"
+    }
+  },
+  {
+    id: "feeder-3kg-small",
+    name: "3 Kg Feeder (Small)",
+    category: "Feeders",
+    description: "3kg capacity feeder with compact design for efficient feed management.",
+    price: 350, // RP
+    wholesalePrice: 280, // WP
+    imageUrl: "/products/feeders/feeder-3kg-small.webp",
+    sku: "FEED-3KG-SML",
+    inStock: true,
+    stockQuantity: 200,
+    unit: "piece",
+    minWholesaleQty: 10,
+    isActive: true,
+    specifications: {
+      capacity: "3 Kg",
+      size: "Small",
+      material: "Plastic"
+    }
+  },
+  {
+    id: "feeder-3kg-big",
+    name: "3 Kg Feeder (Big)",
+    category: "Feeders",
+    description: "3kg capacity feeder with larger design for better access.",
+    price: 380, // RP
+    wholesalePrice: 300, // WP
+    imageUrl: "/products/feeders/feeder-3kg-big.webp",
+    sku: "FEED-3KG-BIG",
+    inStock: true,
+    stockQuantity: 180,
+    unit: "piece",
+    minWholesaleQty: 10,
+    isActive: true,
+    specifications: {
+      capacity: "3 Kg",
+      size: "Big",
+      material: "Plastic"
+    }
   },
   {
     id: "feeder-no2",
     name: "Feeder No.2",
     category: "Feeders",
     description: "Professional-grade feeder for commercial operations. Heavy-duty construction for long-lasting use.",
-    imageUrl: placeholderImages["Feeders"],
-    hasVariants: true,
-    variants: [
-      {
-        id: "standard",
-        name: "Feeder No.2",
-        sku: "FEED-NO2-STD",
-        wholesalePrice: 350,
-        retailPrice: 400,
-        inStock: true,
-        stockQuantity: 70
-      }
-    ],
+    price: 400, // RP
+    wholesalePrice: 350, // WP
+    imageUrl: "/products/feeders/feeder-no2.webp",
+    sku: "FEED-NO2",
+    inStock: true,
+    stockQuantity: 70,
     unit: "piece",
     minWholesaleQty: 10,
-    isActive: true
+    isActive: true,
+    specifications: {
+      type: "Professional",
+      material: "Heavy-duty plastic"
+    }
+  },
+  {
+    id: "feeder-6kg",
+    name: "6 Kg Feeder",
+    category: "Feeders",
+    description: "6kg capacity feeder ideal for medium-sized flocks.",
+    price: 450, // RP
+    wholesalePrice: 380, // WP
+    imageUrl: "/products/feeders/feeder-6kg.webp",
+    sku: "FEED-6KG",
+    inStock: true,
+    stockQuantity: 200,
+    unit: "piece",
+    minWholesaleQty: 10,
+    isActive: true,
+    specifications: {
+      capacity: "6 Kg",
+      material: "Plastic",
+      suitable: "Medium flocks"
+    }
+  },
+  {
+    id: "rectangular-tray",
+    name: "Rectangular Feeding Tray",
+    category: "Feeders",
+    description: "Large rectangular tray feeder for chicks and easy cleaning. Prevents feed wastage.",
+    price: 450, // RP
+    wholesalePrice: 400, // WP
+    imageUrl: "/products/feeders/rectangular-tray.webp",
+    sku: "FEED-TRAY-RECT",
+    inStock: true,
+    stockQuantity: 90,
+    unit: "piece",
+    minWholesaleQty: 10,
+    isActive: true,
+    specifications: {
+      shape: "Rectangular",
+      material: "Plastic"
+    }
+  },
+  {
+    id: "feeder-10kg",
+    name: "10 Kg Feeder",
+    category: "Feeders",
+    description: "10kg capacity feeder for larger flocks. Reduces refilling frequency.",
+    price: 650, // RP
+    wholesalePrice: 550, // WP
+    imageUrl: "/products/feeders/feeder-10kg.webp",
+    sku: "FEED-10KG",
+    inStock: true,
+    stockQuantity: 150,
+    unit: "piece",
+    minWholesaleQty: 10,
+    isActive: true,
+    specifications: {
+      capacity: "10 Kg",
+      material: "Plastic",
+      suitable: "Large flocks"
+    }
+  },
+  {
+    id: "feeder-12kg",
+    name: "12 Kg Feeder",
+    category: "Feeders",
+    description: "12kg capacity feeder for commercial operations. Maximum feed storage capacity.",
+    price: 750, // RP
+    wholesalePrice: 600, // WP
+    imageUrl: "/products/feeders/feeder-12kg.webp",
+    sku: "FEED-12KG",
+    inStock: true,
+    stockQuantity: 100,
+    unit: "piece",
+    minWholesaleQty: 10,
+    isActive: true,
+    specifications: {
+      capacity: "12 Kg",
+      material: "Durable plastic",
+      suitable: "Commercial farms"
+    }
   },
 
-  // ==================== DRINKERS ====================
+  // ==========================================
+  // CATEGORY 2: DRINKERS (10 products)
+  // Sorted: Cheapest (WP: 75) → Most Expensive (WP: 1300)
+  // ==========================================
   {
-    id: "nipple-systems",
-    name: "Nipple Drinker Systems",
+    id: "nipple-single",
+    name: "Nipple Drinker (Single)",
     category: "Drinkers",
-    description: "Modern water-saving nipple drinking systems. Reduces water wastage and maintains hygiene.",
-    imageUrl: placeholderImages["Drinkers"],
-    hasVariants: true,
-    variants: [
-      {
-        id: "double-cups",
-        name: "Double Nipple with Cups",
-        sku: "DRINK-NIP-DBL-CUP",
-        wholesalePrice: 140,
-        retailPrice: 150,
-        inStock: true,
-        stockQuantity: 100
-      },
-      {
-        id: "single",
-        name: "Nipple",
-        sku: "DRINK-NIP-SGL",
-        wholesalePrice: 75,
-        retailPrice: 80,
-        inStock: true,
-        stockQuantity: 200
-      },
-      {
-        id: "with-cups",
-        name: "Nipple with Cups",
-        sku: "DRINK-NIP-CUP",
-        wholesalePrice: 90,
-        retailPrice: 100,
-        inStock: true,
-        stockQuantity: 150
-      },
-      {
-        id: "bucket",
-        name: "Bucket Nipple",
-        sku: "DRINK-NIP-BCK",
-        wholesalePrice: 90,
-        retailPrice: 100,
-        inStock: true,
-        stockQuantity: 120
-      }
-    ],
+    description: "Single nipple drinker for water-saving and hygiene. Easy to install.",
+    price: 80, // RP
+    wholesalePrice: 75, // WP
+    imageUrl: "/products/drinkers/nipple-single.webp",
+    sku: "DRINK-NIP-SGL",
+    inStock: true,
+    stockQuantity: 200,
     unit: "piece",
     minWholesaleQty: 10,
-    isActive: true
+    isActive: true,
+    specifications: {
+      type: "Nipple system",
+      configuration: "Single"
+    }
   },
   {
-    id: "standard-drinkers",
-    name: "Standard Drinkers",
+    id: "nipple-with-cups",
+    name: "Nipple Drinker with Cups",
     category: "Drinkers",
-    description: "Traditional gravity-fed drinkers in various capacities. Easy to clean and maintain.",
-    imageUrl: placeholderImages["Drinkers"],
-    hasVariants: true,
-    variants: [
-      {
-        id: "3l",
-        name: "3L Drinker",
-        sku: "DRINK-STD-3L",
-        wholesalePrice: 230,
-        retailPrice: 250,
-        inStock: true,
-        stockQuantity: 130
-      },
-      {
-        id: "no2-small",
-        name: "Drinker No.2 Small",
-        sku: "DRINK-NO2-SML",
-        wholesalePrice: 220,
-        retailPrice: 250,
-        inStock: true,
-        stockQuantity: 140
-      },
-      {
-        id: "no2-large",
-        name: "Drinker No.2 Large",
-        sku: "DRINK-NO2-LRG",
-        wholesalePrice: 420,
-        retailPrice: 500,
-        inStock: true,
-        stockQuantity: 80
-      }
-    ],
+    description: "Nipple drinker with attached cups for easy drinking access.",
+    price: 100, // RP
+    wholesalePrice: 90, // WP
+    imageUrl: "/products/drinkers/nipple-with-cups.webp",
+    sku: "DRINK-NIP-CUP",
+    inStock: true,
+    stockQuantity: 150,
     unit: "piece",
     minWholesaleQty: 10,
-    isActive: true
+    isActive: true,
+    specifications: {
+      type: "Nipple system",
+      features: "With cups"
+    }
   },
   {
-    id: "automatic-drinkers",
-    name: "Automatic Drinkers",
+    id: "bucket-nipple",
+    name: "Bucket Nipple Drinker",
     category: "Drinkers",
-    description: "Automatic refilling drinkers for continuous water supply. Perfect for commercial farms.",
-    imageUrl: placeholderImages["Drinkers"],
-    hasVariants: true,
-    variants: [
-      {
-        id: "small",
-        name: "Auto Small",
-        sku: "DRINK-AUTO-SML",
-        wholesalePrice: 1000,
-        retailPrice: 1100,
-        inStock: true,
-        stockQuantity: 40
-      },
-      {
-        id: "big",
-        name: "Auto Big",
-        sku: "DRINK-AUTO-BIG",
-        wholesalePrice: 1300,
-        retailPrice: 1500,
-        inStock: true,
-        stockQuantity: 30
-      }
-    ],
+    description: "Nipple system designed for bucket mounting. Perfect for small setups.",
+    price: 100, // RP
+    wholesalePrice: 90, // WP
+    imageUrl: "/products/drinkers/bucket-nipple.webp",
+    sku: "DRINK-NIP-BCK",
+    inStock: true,
+    stockQuantity: 120,
     unit: "piece",
     minWholesaleQty: 10,
-    isActive: true
+    isActive: true,
+    specifications: {
+      type: "Nipple system",
+      mounting: "Bucket-compatible"
+    }
   },
   {
-    id: "bucket-drinkers",
-    name: "Bucket Model Drinkers",
+    id: "double-nipple-cups",
+    name: "Double Nipple with Cups",
     category: "Drinkers",
-    description: "Large capacity bucket-style drinkers with multiple drinking points. Ideal for large flocks.",
-    imageUrl: placeholderImages["Drinkers"],
-    hasVariants: true,
-    variants: [
-      {
-        id: "standard",
-        name: "Bucket Model",
-        sku: "DRINK-BCK-STD",
-        wholesalePrice: 1000,
-        retailPrice: 1000,
-        inStock: true,
-        stockQuantity: 50
-      }
-    ],
+    description: "Double nipple drinker system with cups. Modern water-saving technology.",
+    price: 150, // RP
+    wholesalePrice: 140, // WP
+    imageUrl: "/products/drinkers/double-nipple-cups.webp",
+    sku: "DRINK-NIP-DBL-CUP",
+    inStock: true,
+    stockQuantity: 100,
     unit: "piece",
     minWholesaleQty: 10,
-    isActive: true
+    isActive: true,
+    specifications: {
+      type: "Nipple system",
+      configuration: "Double with cups"
+    }
+  },
+  {
+    id: "drinker-no2",
+    name: "Drinker No.2",
+    category: "Drinkers",
+    description: "Standard gravity-fed drinker. Reliable and easy to maintain.",
+    price: 250, // RP
+    wholesalePrice: 220, // WP
+    imageUrl: "/products/drinkers/drinker-no2.webp",
+    sku: "DRINK-NO2",
+    inStock: true,
+    stockQuantity: 100,
+    unit: "piece",
+    minWholesaleQty: 10,
+    isActive: true,
+    specifications: {
+      type: "Gravity-fed",
+      capacity: "Standard"
+    }
+  },
+  {
+    id: "drinker-3l",
+    name: "3L Drinker",
+    category: "Drinkers",
+    description: "3-liter capacity gravity-fed drinker. Ideal for small to medium flocks.",
+    price: 250, // RP
+    wholesalePrice: 230, // WP
+    imageUrl: "/products/drinkers/drinker-3l.webp",
+    sku: "DRINK-3L",
+    inStock: true,
+    stockQuantity: 150,
+    unit: "piece",
+    minWholesaleQty: 10,
+    isActive: true,
+    specifications: {
+      capacity: "3 Litres",
+      type: "Gravity-fed"
+    }
+  },
+  {
+    id: "drinker-no2-7l",
+    name: "Drinker No.2 (7 Litres)",
+    category: "Drinkers",
+    description: "Large 7-litre capacity drinker for bigger flocks. Reduces refilling frequency.",
+    price: 500, // RP
+    wholesalePrice: 420, // WP
+    imageUrl: "/products/drinkers/drinker-no2-7l.webp",
+    sku: "DRINK-NO2-7L",
+    inStock: true,
+    stockQuantity: 80,
+    unit: "piece",
+    minWholesaleQty: 10,
+    isActive: true,
+    specifications: {
+      capacity: "7 Litres",
+      type: "Gravity-fed"
+    }
+  },
+  {
+    id: "bucket-model-drinker",
+    name: "Bucket Model Drinker",
+    category: "Drinkers",
+    description: "Professional bucket-style drinker system for commercial operations.",
+    price: 1000, // RP (only RP provided)
+    imageUrl: "/products/drinkers/bucket-model.webp",
+    sku: "DRINK-BCK-MDL",
+    inStock: true,
+    stockQuantity: 50,
+    unit: "piece",
+    minWholesaleQty: 10,
+    isActive: true,
+    specifications: {
+      type: "Bucket model",
+      suitable: "Commercial farms"
+    }
+  },
+  {
+    id: "auto-drinker-small",
+    name: "Auto Drinker (Small)",
+    category: "Drinkers",
+    description: "Automatic water dispensing system for consistent water supply. Small capacity.",
+    price: 1100, // RP
+    wholesalePrice: 1000, // WP
+    imageUrl: "/products/drinkers/auto-small.webp",
+    sku: "DRINK-AUTO-SML",
+    inStock: true,
+    stockQuantity: 40,
+    unit: "piece",
+    minWholesaleQty: 10,
+    isActive: true,
+    specifications: {
+      type: "Automatic",
+      size: "Small"
+    }
+  },
+  {
+    id: "auto-drinker-big",
+    name: "Auto Drinker (Big)",
+    category: "Drinkers",
+    description: "Large automatic water system for commercial operations. Advanced water management.",
+    price: 1500, // RP
+    wholesalePrice: 1300, // WP
+    imageUrl: "/products/drinkers/auto-big.webp",
+    sku: "DRINK-AUTO-BIG",
+    inStock: true,
+    stockQuantity: 30,
+    unit: "piece",
+    minWholesaleQty: 10,
+    isActive: true,
+    specifications: {
+      type: "Automatic",
+      size: "Large",
+      suitable: "Commercial farms"
+    }
   },
 
-  // ==================== BROODING EQUIPMENT ====================
+  // ==========================================
+  // CATEGORY 3: BROODING EQUIPMENT (8 products)
+  // Sorted: Cheapest (WP: 100) → Most Expensive (WP: 2200)
+  // ==========================================
   {
-    id: "brooding-pots",
-    name: "Traditional Brooding Pots",
+    id: "bulb-holder",
+    name: "Bulb Holder",
     category: "Brooding Equipment",
-    description: "Clay brooding pots for natural heat retention. Traditional method preferred by many farmers.",
-    imageUrl: placeholderImages["Brooding Equipment"],
-    hasVariants: true,
-    variants: [
-      {
-        id: "big",
-        name: "Brooding Pot Big",
-        sku: "BROOD-POT-BIG",
-        wholesalePrice: 700,
-        retailPrice: 800,
-        inStock: true,
-        stockQuantity: 30
-      },
-      {
-        id: "small",
-        name: "Brooding Pot Small",
-        sku: "BROOD-POT-SML",
-        wholesalePrice: 600,
-        retailPrice: 400,
-        inStock: true,
-        stockQuantity: 45
-      }
-    ],
+    description: "Heavy-duty bulb holder for brooding lamps. Safe and secure mounting.",
+    price: 120, // RP
+    wholesalePrice: 100, // WP
+    imageUrl: "/products/brooding/bulb-holder.webp",
+    sku: "BROOD-HOLDER",
+    inStock: true,
+    stockQuantity: 200,
     unit: "piece",
     minWholesaleQty: 10,
-    isActive: true
+    isActive: true,
+    specifications: {
+      type: "Electrical accessory",
+      material: "Heat-resistant"
+    }
   },
   {
-    id: "brooding-bulbs",
-    name: "Brooding Bulbs",
+    id: "watering-can",
+    name: "Watering Can",
     category: "Brooding Equipment",
-    description: "Infrared heat bulbs for brooding. 250W capacity for optimal warmth.",
-    imageUrl: placeholderImages["Brooding Equipment"],
-    hasVariants: true,
-    variants: [
-      {
-        id: "250w",
-        name: "Brooding Bulb 250W",
-        sku: "BROOD-BULB-250W",
-        wholesalePrice: 550,
-        retailPrice: 600,
-        inStock: true,
-        stockQuantity: 80
-      }
-    ],
+    description: "Durable watering can for manual water distribution. Easy to handle.",
+    price: 350, // RP
+    wholesalePrice: 320, // WP
+    imageUrl: "/products/brooding/watering-can.webp",
+    sku: "BROOD-WATER-CAN",
+    inStock: true,
+    stockQuantity: 100,
     unit: "piece",
     minWholesaleQty: 10,
-    isActive: true
+    isActive: true,
+    specifications: {
+      type: "Manual",
+      material: "Plastic"
+    }
   },
   {
-    id: "brooding-accessories",
-    name: "Brooding Accessories",
+    id: "spray-pump-small",
+    name: "Spray Pump (Small)",
     category: "Brooding Equipment",
-    description: "Essential accessories for brooding setup including bulb holders and watering cans.",
-    imageUrl: placeholderImages["Brooding Equipment"],
-    hasVariants: true,
-    variants: [
-      {
-        id: "bulb-holder",
-        name: "Bulb Holder",
-        sku: "BROOD-ACC-HOLD",
-        wholesalePrice: 100,
-        retailPrice: 120,
-        inStock: true,
-        stockQuantity: 150
-      },
-      {
-        id: "watering-can",
-        name: "Watering Can",
-        sku: "BROOD-ACC-CAN",
-        wholesalePrice: 320,
-        retailPrice: 350,
-        inStock: true,
-        stockQuantity: 60
-      }
-    ],
+    description: "Compact spray pump for disinfection and pest control in small coops.",
+    price: 450, // RP
+    wholesalePrice: 380, // WP
+    imageUrl: "/products/brooding/spray-pump-small.webp",
+    sku: "BROOD-SPRAY-SML",
+    inStock: true,
+    stockQuantity: 90,
     unit: "piece",
     minWholesaleQty: 10,
-    isActive: true
+    isActive: true,
+    specifications: {
+      capacity: "Small",
+      type: "Manual pump"
+    }
   },
   {
-    id: "spray-pumps",
-    name: "Spray Pumps",
+    id: "brooding-pot-small",
+    name: "Brooding Pot (Small)",
     category: "Brooding Equipment",
-    description: "Manual and pressure spray pumps for disinfection and pest control.",
-    imageUrl: placeholderImages["Brooding Equipment"],
-    hasVariants: true,
-    variants: [
-      {
-        id: "small",
-        name: "Spray Pump Small",
-        sku: "BROOD-SPRAY-SML",
-        wholesalePrice: 380,
-        retailPrice: 450,
-        inStock: true,
-        stockQuantity: 90
-      },
-      {
-        id: "20l",
-        name: "20L Spray Pump",
-        sku: "BROOD-SPRAY-20L",
-        wholesalePrice: 1800,
-        retailPrice: 2000,
-        inStock: true,
-        stockQuantity: 25
-      }
-    ],
+    description: "Small capacity brooding pot for warming chicks. Energy-efficient design.",
+    price: 600, // RP (CORRECTED from 400)
+    wholesalePrice: 400, // WP (CORRECTED from 600)
+    imageUrl: "/products/brooding/brooding-pot-small.webp",
+    sku: "BROOD-POT-SML",
+    inStock: true,
+    stockQuantity: 60,
     unit: "piece",
     minWholesaleQty: 10,
-    isActive: true
+    isActive: true,
+    specifications: {
+      capacity: "Small",
+      type: "Heating pot"
+    }
   },
   {
-    id: "cooler-box",
-    name: "Cooler Box",
+    id: "brooding-bulb-250w",
+    name: "Brooding Bulb 250W",
     category: "Brooding Equipment",
-    description: "Insulated cooler box for transporting chicks and maintaining temperature.",
-    imageUrl: placeholderImages["Brooding Equipment"],
-    hasVariants: true,
-    variants: [
-      {
-        id: "4.5l",
-        name: "Cooler Box 4.5L",
-        sku: "BROOD-COOL-4.5L",
-        wholesalePrice: 2200,
-        retailPrice: 2200,
-        inStock: true,
-        stockQuantity: 20
-      }
-    ],
+    description: "250W infrared brooding bulb for optimal chick warming. Long-lasting performance.",
+    price: 600, // RP
+    wholesalePrice: 550, // WP
+    imageUrl: "/products/brooding/brooding-bulb-250w.webp",
+    sku: "BROOD-BULB-250W",
+    inStock: true,
+    stockQuantity: 150,
     unit: "piece",
     minWholesaleQty: 10,
-    isActive: true
+    isActive: true,
+    specifications: {
+      wattage: "250W",
+      type: "Infrared",
+      suitable: "Brooding"
+    }
+  },
+  {
+    id: "brooding-pot-big",
+    name: "Brooding Pot (Big)",
+    category: "Brooding Equipment",
+    description: "Large capacity brooding pot for bigger chick batches. Efficient heat distribution.",
+    price: 800, // RP
+    wholesalePrice: 700, // WP
+    imageUrl: "/products/brooding/brooding-pot-big.webp",
+    sku: "BROOD-POT-BIG",
+    inStock: true,
+    stockQuantity: 40,
+    unit: "piece",
+    minWholesaleQty: 10,
+    isActive: true,
+    specifications: {
+      capacity: "Large",
+      type: "Heating pot"
+    }
+  },
+  {
+    id: "spray-pump-20l",
+    name: "20L Spray Pump",
+    category: "Brooding Equipment",
+    description: "Large 20-litre pressure spray pump for commercial disinfection and pest control.",
+    price: 2000, // RP
+    wholesalePrice: 1800, // WP
+    imageUrl: "/products/brooding/spray-pump-20l.webp",
+    sku: "BROOD-SPRAY-20L",
+    inStock: true,
+    stockQuantity: 25,
+    unit: "piece",
+    minWholesaleQty: 10,
+    isActive: true,
+    specifications: {
+      capacity: "20 Litres",
+      type: "Pressure pump"
+    }
+  },
+  {
+    id: "cooler-box-4-5l",
+    name: "Cooler Box 4.5L",
+    category: "Brooding Equipment",
+    description: "Insulated cooler box for transporting chicks and maintaining temperature during transit.",
+    wholesalePrice: 2200, // WP (only WP provided)
+    imageUrl: "/products/brooding/cooler-box-4-5l.webp",
+    sku: "BROOD-COOL-4-5L",
+    inStock: true,
+    stockQuantity: 20,
+    unit: "piece",
+    minWholesaleQty: 10,
+    isActive: true,
+    specifications: {
+      capacity: "4.5 Litres",
+      type: "Insulated",
+      purpose: "Chick transportation"
+    }
   },
 
-  // ==================== AUTOMATIC INCUBATORS ====================
+  // ==========================================
+  // CATEGORY 4: AUTOMATIC INCUBATORS (6 products)
+  // Sorted: Cheapest (WP: 12000) → Most Expensive (WP: 76500)
+  // ==========================================
   {
-    id: "small-incubators",
-    name: "Small Capacity Incubators",
+    id: "incubator-64-eggs",
+    name: "64 Eggs Automatic Incubator",
     category: "Automatic Incubators",
-    description: "Fully automatic egg incubators for small-scale hatching. Digital temperature and humidity control.",
-    imageUrl: placeholderImages["Automatic Incubators"],
-    hasVariants: true,
-    variants: [
-      {
-        id: "64-eggs",
-        name: "64 Eggs",
-        sku: "INCUB-SML-64",
-        wholesalePrice: 12000,
-        retailPrice: 12500,
-        inStock: true,
-        stockQuantity: 15
-      },
-      {
-        id: "128-eggs",
-        name: "128 Eggs",
-        sku: "INCUB-SML-128",
-        wholesalePrice: 21000,
-        retailPrice: 21500,
-        inStock: true,
-        stockQuantity: 12
-      }
-    ],
+    description: "Fully automatic 64-egg capacity incubator. Digital temperature and humidity control.",
+    price: 12500, // RP
+    wholesalePrice: 12000, // WP
+    imageUrl: "/products/incubators/incubator-64-eggs.webp",
+    sku: "INCUB-64",
+    inStock: true,
+    stockQuantity: 15,
     unit: "unit",
-    minWholesaleQty: 10,
-    isActive: true
+    minWholesaleQty: 1,
+    isActive: true,
+    specifications: {
+      capacity: "64 Eggs",
+      type: "Fully automatic",
+      features: "Digital controls"
+    }
   },
   {
-    id: "medium-incubators",
-    name: "Medium Capacity Incubators",
+    id: "incubator-128-eggs",
+    name: "128 Eggs Automatic Incubator",
     category: "Automatic Incubators",
-    description: "Mid-range automatic incubators for growing operations. Reliable and efficient.",
-    imageUrl: placeholderImages["Automatic Incubators"],
-    hasVariants: true,
-    variants: [
-      {
-        id: "204-eggs",
-        name: "204 Eggs",
-        sku: "INCUB-MED-204",
-        wholesalePrice: 29500,
-        retailPrice: 30000,
-        inStock: true,
-        stockQuantity: 8
-      },
-      {
-        id: "256-eggs",
-        name: "256 Eggs",
-        sku: "INCUB-MED-256",
-        wholesalePrice: 36000,
-        retailPrice: 37000,
-        inStock: true,
-        stockQuantity: 10
-      }
-    ],
+    description: "128-egg capacity incubator for small to medium-scale hatching operations.",
+    price: 21500, // RP
+    wholesalePrice: 21000, // WP
+    imageUrl: "/products/incubators/incubator-128-eggs.webp",
+    sku: "INCUB-128",
+    inStock: true,
+    stockQuantity: 12,
     unit: "unit",
-    minWholesaleQty: 10,
-    isActive: true
+    minWholesaleQty: 1,
+    isActive: true,
+    specifications: {
+      capacity: "128 Eggs",
+      type: "Fully automatic",
+      features: "Digital controls"
+    }
   },
   {
-    id: "large-incubators",
-    name: "Large Capacity Incubators",
+    id: "incubator-204-eggs",
+    name: "204 Eggs Automatic Incubator",
     category: "Automatic Incubators",
-    description: "Commercial-grade incubators for large-scale hatcheries. Advanced automation and monitoring.",
-    imageUrl: placeholderImages["Automatic Incubators"],
-    hasVariants: true,
-    variants: [
-      {
-        id: "528-eggs",
-        name: "528 Eggs",
-        sku: "INCUB-LRG-528",
-        wholesalePrice: 58000,
-        retailPrice: 60000,
-        inStock: true,
-        stockQuantity: 5
-      },
-      {
-        id: "1056-eggs",
-        name: "1056 Eggs",
-        sku: "INCUB-LRG-1056",
-        wholesalePrice: 76500,
-        retailPrice: 78000,
-        inStock: true,
-        stockQuantity: 3
-      }
-    ],
+    description: "204-egg capacity incubator for growing operations. Reliable and efficient hatching.",
+    price: 30000, // RP
+    wholesalePrice: 29500, // WP
+    imageUrl: "/products/incubators/incubator-204-eggs.webp",
+    sku: "INCUB-204",
+    inStock: true,
+    stockQuantity: 8,
     unit: "unit",
-    minWholesaleQty: 10,
-    isActive: true
+    minWholesaleQty: 1,
+    isActive: true,
+    specifications: {
+      capacity: "204 Eggs",
+      type: "Fully automatic",
+      features: "Advanced controls"
+    }
+  },
+  {
+    id: "incubator-256-eggs",
+    name: "256 Eggs Automatic Incubator",
+    category: "Automatic Incubators",
+    description: "256-egg capacity incubator for medium-scale commercial hatching.",
+    price: 37000, // RP
+    wholesalePrice: 36000, // WP
+    imageUrl: "/products/incubators/incubator-256-eggs.webp",
+    sku: "INCUB-256",
+    inStock: true,
+    stockQuantity: 10,
+    unit: "unit",
+    minWholesaleQty: 1,
+    isActive: true,
+    specifications: {
+      capacity: "256 Eggs",
+      type: "Fully automatic",
+      features: "Advanced controls"
+    }
+  },
+  {
+    id: "incubator-528-eggs",
+    name: "528 Eggs Automatic Incubator",
+    category: "Automatic Incubators",
+    description: "Large 528-egg capacity incubator for commercial hatcheries. Advanced automation.",
+    price: 60000, // RP
+    wholesalePrice: 58000, // WP
+    imageUrl: "/products/incubators/incubator-528-eggs.webp",
+    sku: "INCUB-528",
+    inStock: true,
+    stockQuantity: 5,
+    unit: "unit",
+    minWholesaleQty: 1,
+    isActive: true,
+    specifications: {
+      capacity: "528 Eggs",
+      type: "Commercial-grade",
+      features: "Advanced automation"
+    }
+  },
+  {
+    id: "incubator-1056-eggs",
+    name: "1056 Eggs Automatic Incubator",
+    category: "Automatic Incubators",
+    description: "Premium 1056-egg capacity incubator for large-scale commercial operations. Top-tier automation and monitoring.",
+    price: 78000, // RP
+    wholesalePrice: 76500, // WP
+    imageUrl: "/products/incubators/incubator-1056-eggs.webp",
+    sku: "INCUB-1056",
+    inStock: true,
+    stockQuantity: 3,
+    unit: "unit",
+    minWholesaleQty: 1,
+    isActive: true,
+    specifications: {
+      capacity: "1056 Eggs",
+      type: "Premium commercial",
+      features: "Advanced monitoring"
+    }
   },
 
-  // ==================== CAGES & MESH ====================
+  // ==========================================
+  // CATEGORY 5: CAGES & MESH (2 products)
+  // Sorted: Cheapest (WP: 8000) → Most Expensive (WP: 40000)
+  // ==========================================
   {
-    id: "poultry-cages",
-    name: "Poultry Cages",
-    category: "Cages & Mesh",
-    description: "Multi-tier layer cages for efficient space utilization. Complete with feeding and water systems.",
-    imageUrl: placeholderImages["Cages & Mesh"],
-    hasVariants: true,
-    variants: [
-      {
-        id: "4-tier",
-        name: "4 Tier Layer Cage",
-        sku: "CAGE-4TIER",
-        wholesalePrice: 40000,
-        retailPrice: 40000,
-        inStock: true,
-        stockQuantity: 8
-      }
-    ],
-    unit: "unit",
-    minWholesaleQty: 10,
-    isActive: true
-  },
-  {
-    id: "plastic-mesh",
+    id: "plastic-mesh-roll",
     name: "Plastic Mesh Roll",
     category: "Cages & Mesh",
-    description: "Durable plastic mesh for constructing poultry houses, partitions, and flooring.",
-    imageUrl: placeholderImages["Cages & Mesh"],
-    hasVariants: true,
-    variants: [
-      {
-        id: "standard",
-        name: "Plastic Mesh Roll",
-        sku: "MESH-PLST-STD",
-        wholesalePrice: 8000,
-        retailPrice: 8500,
-        inStock: true,
-        stockQuantity: 25
-      }
-    ],
+    description: "Durable plastic mesh roll for constructing poultry houses, partitions, and flooring.",
+    price: 8500, // RP
+    wholesalePrice: 8000, // WP
+    imageUrl: "/products/cages-mesh/plastic-mesh-roll.webp",
+    sku: "MESH-PLST",
+    inStock: true,
+    stockQuantity: 25,
     unit: "roll",
-    minWholesaleQty: 10,
-    isActive: true
+    minWholesaleQty: 5,
+    isActive: true,
+    specifications: {
+      type: "Plastic mesh",
+      usage: "Construction, partitions"
+    }
+  },
+  {
+    id: "4-tier-layer-cage",
+    name: "4 Tier Layer Cage",
+    category: "Cages & Mesh",
+    description: "Complete 4-tier layer cage system for efficient space utilization. Includes feeding and water systems.",
+    wholesalePrice: 40000, // WP (only WP provided)
+    imageUrl: "/products/cages-mesh/4-tier-layer-cage.webp",
+    sku: "CAGE-4TIER",
+    inStock: true,
+    stockQuantity: 8,
+    unit: "unit",
+    minWholesaleQty: 1,
+    isActive: true,
+    specifications: {
+      tiers: "4 Levels",
+      type: "Complete cage system",
+      features: "Feeding & water systems included"
+    }
+  },
+
+  // ==========================================
+  // CATEGORY 6: CHICKENS (2 breeds)
+  // Sorted: Cheapest starting age → Most expensive starting age
+  // ==========================================
+  {
+    id: "improved-kienyeji",
+    name: "Improved Kienyeji",
+    category: "Chickens",
+    description: "Improved Kienyeji chickens - hardy, disease-resistant, and excellent for dual-purpose (meat and eggs). Available from day-old to point of lay.",
+    imageUrl: "/products/chickens/improved-kienyeji.webp",
+    sku: "CHICK-IMP-KIEN",
+    inStock: true,
+    unit: "chick",
+    minWholesaleQty: 50,
+    isActive: true,
+    priceByAge: {
+      "1-3 days": 100,
+      "1 week": 140,
+      "2 weeks": 170,
+      "3 weeks": 200,
+      "4 weeks": 250,
+      "2 months": 450,
+      "3 months": 600,
+      "Point of lay": 850
+    },
+    specifications: {
+      breed: "Improved Kienyeji",
+      purpose: "Dual-purpose (meat & eggs)",
+      characteristics: "Hardy, disease-resistant"
+    }
+  },
+  {
+    id: "layers",
+    name: "Layers",
+    category: "Chickens",
+    description: "High-production layer chickens for commercial egg farming. Excellent egg-laying capacity. Available from day-old to point of lay.",
+    imageUrl: "/products/chickens/layers.webp",
+    sku: "CHICK-LAYERS",
+    inStock: true,
+    unit: "chick",
+    minWholesaleQty: 50,
+    isActive: true,
+    priceByAge: {
+      "Day old": 155,
+      "1 week": 185,
+      "2 weeks": 220,
+      "3 weeks": 280,
+      "4 weeks": 320,
+      "Point of lay": 850
+    },
+    specifications: {
+      breed: "Layers",
+      purpose: "Egg production",
+      characteristics: "High egg-laying capacity"
+    }
   }
 ];
 
@@ -670,13 +871,9 @@ async function seedProducts() {
     let operationCount = 0;
     let batchCount = 1;
     let totalProducts = 0;
-    let totalVariants = 0;
 
     for (const product of products) {
       const productRef = doc(db, 'products', product.id);
-      
-      // Count variants
-      totalVariants += product.variants.length;
       
       // Add timestamps
       const productData = {
@@ -689,14 +886,24 @@ async function seedProducts() {
       operationCount++;
       totalProducts++;
       
-      // Log progress
-      console.log(`   ✓ ${product.name} (${product.variants.length} variants)`);
+      // Log progress with pricing info
+      const priceInfo = product.price && product.wholesalePrice 
+        ? `RP: ${product.price} | WP: ${product.wholesalePrice}`
+        : product.price 
+          ? `RP: ${product.price}`
+          : product.wholesalePrice 
+            ? `WP: ${product.wholesalePrice}`
+            : product.priceByAge 
+              ? `Ages: ${Object.keys(product.priceByAge).length}`
+              : 'No price';
+      
+      console.log(`   ✓ ${product.name} (${priceInfo})`);
 
       // Commit batch if we reach 500 operations (Firestore limit)
       if (operationCount === 500) {
         console.log(`\n📦 Committing batch ${batchCount}...`);
         await batch.commit();
-        console.log(`✅ Batch ${batchCount} committed successfully\n`);
+        console.log(` Batch ${batchCount} committed successfully\n`);
         
         // Start new batch
         batch = writeBatch(db);
@@ -709,15 +916,14 @@ async function seedProducts() {
     if (operationCount > 0) {
       console.log(`\n📦 Committing final batch ${batchCount}...`);
       await batch.commit();
-      console.log(`✅ Final batch committed successfully\n`);
+      console.log(` Final batch committed successfully\n`);
     }
 
     console.log('\n' + '='.repeat(60));
     console.log('🎉 SEEDING COMPLETE!');
     console.log('='.repeat(60));
-    console.log(`✅ Total products seeded: ${totalProducts}`);
-    console.log(`✅ Total variants: ${totalVariants}`);
-    console.log(`✅ Total batches committed: ${batchCount}`);
+    console.log(` Total products seeded: ${totalProducts}`);
+    console.log(` Total batches committed: ${batchCount}`);
     
     console.log('\n📊 Products by category:');
     
@@ -731,17 +937,21 @@ async function seedProducts() {
       console.log(`   - ${category}: ${count} products`);
     });
     
+    console.log('\n✨ Products are sorted by price within each category:');
+    console.log('   📈 Cheapest (Top Left) → Most Expensive (Bottom Right)');
+    
     console.log('\n✨ Next steps:');
     console.log('   1. View products in Firebase Console');
     console.log('   2. Test on /products page');
-    console.log('   3. Update Firestore rules for production');
-    console.log('   4. Manually assign admin role to first user\n');
+    console.log('   3. Add product images to /public/products/ folders');
+    console.log('   4. Update Firestore rules for production');
+    console.log('   5. Manually assign admin role to first user\n');
     
     console.log('🔒 IMPORTANT: Update Firestore rules before going live!\n');
     
     process.exit(0);
   } catch (error) {
-    console.error('\n❌ Error seeding products:', error);
+    console.error('\nError seeding products:', error);
     console.error('\nTroubleshooting:');
     console.error('   1. Check Firebase credentials in .env file');
     console.error('   2. Verify Firestore rules allow writes');

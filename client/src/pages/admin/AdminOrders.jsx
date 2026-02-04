@@ -67,9 +67,9 @@ const AdminOrders = () => {
       };
       setStatusCounts(counts);
 
-      console.log(`✅ Loaded ${ordersData.length} orders`);
+      console.log(` Loaded ${ordersData.length} orders`);
     } catch (err) {
-      console.error('❌ Error fetching orders:', err);
+      console.error('Error fetching orders:', err);
       setError('Failed to load orders. Please refresh the page.');
     } finally {
       setLoading(false);
