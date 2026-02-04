@@ -9,7 +9,6 @@ import {
   HiShoppingBag, 
   HiCurrencyDollar, 
   HiClock,
-  HiExclamation,
   HiArrowRight
 } from 'react-icons/hi';
 

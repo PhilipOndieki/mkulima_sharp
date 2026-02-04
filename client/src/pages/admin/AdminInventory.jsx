@@ -217,7 +217,7 @@ const AdminInventory = () => {
           </div>
         ) : allVariants.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {allVariants.map((item, index) => (
+            {allVariants.map((item) => (
               <div
                 key={`${item.product.id}-${item.variant.id}`}
                 className="bg-white rounded-xl shadow-card overflow-hidden hover:shadow-card-hover transition-shadow"

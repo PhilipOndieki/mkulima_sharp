@@ -220,16 +220,6 @@ const Checkout = () => {
     });
   };
 
-  /**
-   * Handle continue as guest (future feature)
-   */
-  const handleContinueAsGuest = () => {
-    setShowAuthPrompt(false);
-    setError('Guest checkout coming soon! Please sign in to complete your order.');
-    // For now, still require login
-    // In future: create temporary guest user or allow email-only orders
-  };
-
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="container-custom max-w-6xl">
@@ -278,14 +268,6 @@ const Checkout = () => {
                     >
                       Go Back
                     </button>
-
-                    {/* Future: Guest Checkout Option */}
-                    {/* <button
-                      onClick={handleContinueAsGuest}
-                      className="w-full text-sm text-gray-600 hover:text-gray-900"
-                    >
-                      Continue as Guest
-                    </button> */}
                   </div>
                 </div>
               </div>
