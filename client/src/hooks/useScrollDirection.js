@@ -54,7 +54,7 @@ export const useScrollDirection = (threshold = 100) => {
     window.addEventListener('scroll', onScroll, { passive: true });
 
     return () => window.removeEventListener('scroll', onScroll);
-  }, [threshold]);
+  }, [threshold, prevScrollPosition, scrollPosition]);
 
   return { 
     scrollDirection, 

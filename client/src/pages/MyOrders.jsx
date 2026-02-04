@@ -75,7 +75,7 @@ const MyOrders = () => {
     if (user) {
       fetchOrders();
     }
-  }, [user]);
+  }, [user, fetchOrders]);
 
   /**
    * Apply filters

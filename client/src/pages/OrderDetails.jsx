@@ -19,7 +19,6 @@ import {
  */
 const OrderDetails = () => {
   const { orderId } = useParams();
-  const { user } = useAuth();
   const navigate = useNavigate();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);

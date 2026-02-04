@@ -16,7 +16,6 @@ import {
  * View, filter, and manage all customer orders
  */
 const AdminOrders = () => {
-  const { user } = useAuth();
   const [orders, setOrders] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -130,10 +129,10 @@ const AdminOrders = () => {
   /**
    * Handle view order details
    */
-  const handleViewOrder = (order) => {
-    setSelectedOrder(order);
-    setIsModalOpen(true);
-  };
+const handleViewOrder = useCallback((order) => {
+  setSelectedOrder(order);
+  setIsModalOpen(true);
+}, []);
 
   /**
    * Handle order updated (from modal)
