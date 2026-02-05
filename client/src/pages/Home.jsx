@@ -134,68 +134,93 @@ const Home = () => {
           </div>
         </div>
       </section>
-
-      {/* Value Propositions Section */}
+      {/* Customer Success Story Section - Replaces "Why Choose Us" */}
       <section className="py-12 md:py-20 bg-white">
         <div className="container-custom">
-          <AnimatedSection animation="fade-up">
-            <h2 className="section-header text-center mb-12 md:mb-16">
-              Why Choose Mkulima Sharp
-            </h2>
-          </AnimatedSection>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center">
+            
+            {/* Left Side - Video with Play Button */}
+            <AnimatedSection animation="fade-right">
+              <div className="relative group cursor-pointer rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300">
+                {/* Background Image */}
+                <div className="relative h-[400px] md:h-[500px]">
+                  <img 
+                    src="/mkulimasharp-grow.webp" 
+                    alt="Mkulima Sharp Success Story" 
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.target.src = 'https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=800&h=600&fit=crop';
+                    }}
+                  />
+                  {/* Dark Overlay */}
+                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-all duration-300" />
+                  
+                  {/* Play Button Overlay */}
+                  <a 
+                    href="https://www.youtube.com/watch?v=2wU3ToPNEVc" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="absolute inset-0 flex items-center justify-center"
+                  >
+                    <div className="relative">
+                      {/* Outer Pulse Ring */}
+                      <div className="absolute inset-0 bg-yellow-400/30 rounded-full animate-ping" />
+                      
+                      {/* Play Button Circle */}
+                      <div className="relative w-20 h-20 md:w-24 md:h-24 bg-yellow-400 rounded-full flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300 shadow-2xl">
+                        {/* Play Icon */}
+                        <svg 
+                          className="w-8 h-8 md:w-10 md:h-10 text-white ml-1" 
+                          fill="currentColor" 
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M8 5v14l11-7z" />
+                        </svg>
+                      </div>
+                    </div>
+                  </a>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-            <AnimatedSection animation="fade-up" delay={0}>
-              <Card bordered hover className="text-center h-full">
-                <div className="flex justify-center mb-6">
-                  <div className="w-16 h-16 rounded-full bg-primary-100 flex items-center justify-center">
-                    <HiCheckCircle className="w-10 h-10 text-primary-600" />
+                  {/* "Watch Full Story" Text */}
+                  <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 text-white text-sm md:text-base font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    Watch Full Story
                   </div>
                 </div>
-                <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-4">
-                  Quality Products
-                </h3>
-                <p className="text-gray-600 leading-relaxed">
-                  Premium day-old chicks, incubators, brooders, and equipment from trusted suppliers. Quality guaranteed.
-                </p>
-              </Card>
+              </div>
             </AnimatedSection>
 
-            <AnimatedSection animation="fade-up" delay={200}>
-              <Card bordered hover className="text-center h-full">
-                <div className="flex justify-center mb-6">
-                  <div className="w-16 h-16 rounded-full bg-primary-100 flex items-center justify-center">
-                    <HiAcademicCap className="w-10 h-10 text-primary-600" />
-                  </div>
+            {/* Right Side - Success Story Text */}
+            <AnimatedSection animation="fade-left">
+              <div className="space-y-6">
+
+                {/* Main Heading */}
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-gray-900 leading-tight">
+                  We Partner in Your Success
+                </h2>
+
+                {/* Success Story Paragraph */}
+                <div className="text-gray-700 leading-relaxed">
+                  <p className="text-lg">
+                    Meet Nicodemus from Vihiga County, who started his poultry journey with Mkulima Sharp just 5 months ago. Our team member Amos recently visited his farm to see the incredible progress. Starting with day old chicks from our trusted suppliers, Nicodemus now has 471 healthy chickens that have begun laying eggs and generating income. This is what Mkulima Sharp is all about. We provide ongoing site visits, expert consultancy, and continuous follow up to ensure every farmer succeeds. Your success is our success.
+                  </p>
                 </div>
-                <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-4">
-                  Expert Training
-                </h3>
-                <p className="text-gray-600 leading-relaxed">
-                  Mkulima Sharp Academy - From beginner to profitable farming with proven methods.
-                </p>
-              </Card>
+
+                {/* CTA Button */}
+                <div className="pt-4">
+                  <Button
+                    variant="primary"
+                    size="lg"
+                    onClick={() => window.location.href = '/contact'}
+                  >
+                    Book a Consultation
+                  </Button>
+                </div>
+              </div>
             </AnimatedSection>
 
-            <AnimatedSection animation="fade-up" delay={400}>
-              <Card bordered hover className="text-center h-full md:col-span-2 lg:col-span-1">
-                <div className="flex justify-center mb-6">
-                  <div className="w-16 h-16 rounded-full bg-primary-100 flex items-center justify-center">
-                    <HiTruck className="w-10 h-10 text-primary-600" />
-                  </div>
-                </div>
-                <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-4">
-                  Reliable Delivery
-                </h3>
-                <p className="text-gray-600 leading-relaxed">
-                  Track your order from farm to your doorstep. Fast, safe delivery across Kenya.
-                </p>
-              </Card>
-            </AnimatedSection>
           </div>
         </div>
       </section>
-
+  
       {/* Featured Products Preview */}
       <section className="py-12 md:py-20 bg-gray-50">
         <div className="container-custom">
@@ -388,7 +413,7 @@ const Home = () => {
             <Button
               variant="secondary"
               size="lg"
-              onClick={() => window.location.href = '/business-builder'}
+              onClick={() => window.location.href = '/academy'}
             >
               Join Mkulima Sharp Today
             </Button>
