@@ -4,6 +4,8 @@ import Button from '../components/common/Button';
 import Card from '../components/common/Card';
 import ProductCard from '../components/common/ProductCard';
 import { useState, useEffect } from 'react';
+import { collection, query, where, getDocs, limit } from 'firebase/firestore';
+import { db } from '../services/firebase';
 
 const Home = () => {
   const [currentCount, setCurrentCount] = useState({
@@ -11,6 +13,9 @@ const Home = () => {
     successRate: 0,
     programs: 0,
   });
+
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
 
   // Count-up animation for statistics
   useEffect(() => {
@@ -39,54 +44,45 @@ const Home = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Sample products for featured section
-  const featuredProducts = [
-    {
-      id: '1',
-      name: 'Kari Improved Kienyeji Chicks',
-      description: 'Hardy, fast-growing indigenous chickens with excellent meat quality',
-      price: 150,
-      category: 'Day-Old Chicks',
-      imageUrl: '/products/kienyeji-chicks.jpg',
-      stock: 500,
-      unit: 'chick'
-    },
-    {
-      id: '2',
-      name: 'Broiler Starter Feed - 50kg',
-      description: 'Complete nutrition for broiler chicks 0-3 weeks',
-      price: 3200,
-      category: 'Feeds',
-      imageUrl: '/products/broiler-feed.jpg',
-      stock: 100,
-      unit: 'bag'
-    },
-    {
-      id: '3',
-      name: 'Automatic Feeder System',
-      description: 'Labor-saving feeding system for up to 100 birds',
-      price: 8500,
-      category: 'Equipment',
-      imageUrl: '/products/feeder.jpg',
-      stock: 25,
-      unit: 'unit'
-    },
-    {
-      id: '4',
-      name: 'Poultry Multivitamins - 1L',
-      description: 'Essential vitamins and minerals for healthy growth',
-      price: 1200,
-      category: 'Supplements',
-      imageUrl: '/products/vitamins.jpg',
-      stock: 75,
-      unit: 'bottle'
-    },
-  ];
+  // Fetch one product from each category
+  useEffect(() => {
+    const fetchFeaturedProducts = async () => {
+      try {
+        setLoadingProducts(true);
+        
+        // Categories to fetch from
+        const categories = ['Automatic Incubators', 'Brooding Equipment', 'Cages & Mesh', 'Drinkers', 'Feeders'];
+        const products = [];
 
-  const handleAddToCart = (product) => {
-    // TODO: Implement cart functionality
-    console.log('Add to cart:', product);
-  };
+        // Fetch one product from each category
+        for (const category of categories) {
+          const q = query(
+            collection(db, 'products'),
+            where('category', '==', category),
+            where('inStock', '==', true),
+            limit(1)
+          );
+          
+          const querySnapshot = await getDocs(q);
+          querySnapshot.forEach((doc) => {
+            products.push({
+              id: doc.id,
+              ...doc.data()
+            });
+          });
+        }
+
+        console.log('✅ Fetched featured products:', products.length);
+        setFeaturedProducts(products);
+      } catch (error) {
+        console.error('❌ Error fetching featured products:', error);
+      } finally {
+        setLoadingProducts(false);
+      }
+    };
+
+    fetchFeaturedProducts();
+  }, []);
 
   return (
     <div className="min-h-screen">
@@ -110,13 +106,9 @@ const Home = () => {
           <div className="max-w-3xl mx-auto md:mx-0">
             <AnimatedSection animation="fade-up" delay={0}>
               <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold text-white mb-6 leading-tight">
-                Building Thriving Poultry Farms, One Chick at a Time
+                Building Thriving Poultry Farms, <br />
+                <span className="text-yellow-400">One Chick at a Time</span>
               </h1>
-            </AnimatedSection>
-
-            <AnimatedSection animation="fade-up" delay={200}>
-              <p className="text-lg sm:text-xl md:text-2xl text-gray-200 mb-8 md:mb-12 leading-relaxed">
-              </p>
             </AnimatedSection>
 
             <AnimatedSection animation="fade-up" delay={400}>
@@ -164,7 +156,7 @@ const Home = () => {
                   Quality Products
                 </h3>
                 <p className="text-gray-600 leading-relaxed">
-                  Premium day-old chicks, feeds, and equipment from trusted suppliers. Quality guaranteed.
+                  Premium day-old chicks, incubators, brooders, and equipment from trusted suppliers. Quality guaranteed.
                 </p>
               </Card>
             </AnimatedSection>
@@ -218,21 +210,49 @@ const Home = () => {
             </div>
           </AnimatedSection>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 mb-12">
-            {featuredProducts.map((product, index) => (
-              <AnimatedSection 
-                key={product.id} 
-                animation="fade-up" 
-                delay={index * 100}
-              >
-                <ProductCard 
-                  product={product} 
-                  onAddToCart={handleAddToCart}
-                />
-              </AnimatedSection>
-            ))}
+          {/* Products Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mb-12">
+            {loadingProducts ? (
+              // Loading Skeleton
+              [1, 2, 3].map((i) => (
+                <AnimatedSection key={i} animation="fade-up" delay={i * 100}>
+                  <div className="animate-pulse bg-white rounded-xl shadow-card overflow-hidden">
+                    <div className="bg-gray-200 h-56"></div>
+                    <div className="p-5 space-y-3">
+                      <div className="h-6 bg-gray-200 rounded w-3/4"></div>
+                      <div className="h-4 bg-gray-200 rounded w-full"></div>
+                      <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+                      <div className="h-10 bg-gray-200 rounded mt-4"></div>
+                    </div>
+                  </div>
+                </AnimatedSection>
+              ))
+            ) : featuredProducts.length === 0 ? (
+              // No Products Found
+              <div className="col-span-full text-center py-12">
+                <div className="text-gray-400 mb-4">
+                  <svg className="w-16 h-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                  </svg>
+                </div>
+                <p className="text-gray-500 text-lg mb-2">No products available at the moment</p>
+                <p className="text-gray-400 text-sm">Check back soon for new arrivals</p>
+              </div>
+            ) : (
+              // Products Loaded
+              featuredProducts.map((product, index) => (
+                <AnimatedSection 
+                  key={product.id} 
+                  animation="fade-up" 
+                  delay={index * 100}
+                >
+                  <ProductCard product={product} />
+                </AnimatedSection>
+              ))
+            )}
           </div>
 
+          {/* View All Button */}
           <AnimatedSection animation="fade-up" className="text-center">
             <Button
               variant="primary"
@@ -311,7 +331,7 @@ const Home = () => {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
                 <div className="order-2 lg:order-1">
                   <img 
-                    src="/testimonials/farmer-1.jpg" 
+                    src="/testimonials/farmer-1.webp" 
                     alt="Success Story" 
                     className="rounded-2xl shadow-card w-full h-64 md:h-96 object-cover"
                     onError={(e) => {
@@ -341,7 +361,7 @@ const Home = () => {
                 </Card>
                 <div>
                   <img 
-                    src="/testimonials/farmer-2.jpg" 
+                    src="/testimonials/farmer-2.webp" 
                     alt="Success Story" 
                     className="rounded-2xl shadow-card w-full h-64 md:h-96 object-cover"
                     onError={(e) => {
