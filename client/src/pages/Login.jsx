@@ -24,7 +24,7 @@ const Login = () => {
   const location = useLocation();
   const { 
     signInWithGoogle,
-    signInWithEmail,
+    signIn,
     isAuthenticated, 
     loading, 
     error, 
@@ -89,7 +89,7 @@ const Login = () => {
       }
 
       // Perform sign-in
-      await signInWithEmail(email, password, rememberMe);
+      await signIn(email, password, rememberMe);
 
       // Success - navigation will happen via useEffect
       

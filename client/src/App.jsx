@@ -3,6 +3,7 @@ import Layout from './components/layout/Layout';
 import ProtectedRoute, { AdminRoute } from './components/ProtectedRoute';
 import { CartProvider } from './components/cart/CartContext'; 
 import Home from './pages/Home';
+import Register from './pages/Register';
 
 // Admin Components (NOT lazy loaded for better admin UX)
 import AdminLayout from './components/admin/AdminLayout';
@@ -80,6 +81,7 @@ function App() {
               <Route path="about" element={<About />} />
               <Route path="contact" element={<Contact />} />
               <Route path="help" element={<Help />} />
+              <Route path="/register" element={<Register />} />
               
               {/* Authentication Routes */}
               <Route path="login" element={<Login />} />
