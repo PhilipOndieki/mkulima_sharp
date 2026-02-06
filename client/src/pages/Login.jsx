@@ -3,13 +3,13 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Button from '../components/common/Button';
 import AnimatedSection from '../components/common/AnimatedSection';
-import { HiShieldCheck, HiLockClosed } from 'react-icons/hi';
+import { HiShieldCheck, HiLockClosed, HiEye, HiEyeOff } from 'react-icons/hi';
 import { FcGoogle } from 'react-icons/fc';
 
 /**
  * Login Page Component
  * 
- * Professional, secure login interface with Google OAuth
+ * Professional, secure login interface with Google OAuth and Email/Password
  * Mobile-first responsive design
  * 
  * Security Features:
@@ -23,7 +23,8 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { 
-    signInWithGoogle, 
+    signInWithGoogle,
+    signInWithEmail,
     isAuthenticated, 
     loading, 
     error, 
@@ -32,6 +33,9 @@ const Login = () => {
     initializing
   } = useAuth();
 
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [authError, setAuthError] = useState(null);
@@ -60,6 +64,47 @@ const Login = () => {
   }, [clearError]);
 
   /**
+   * Handle Email/Password Sign-In
+   */
+  const handleEmailSignIn = async (e) => {
+    e.preventDefault();
+    
+    try {
+      // Clear previous errors
+      setAuthError(null);
+      clearError();
+      setIsLoading(true);
+
+      // Validation
+      if (!email || !password) {
+        setAuthError('Please enter both email and password');
+        return;
+      }
+
+      // Check remaining attempts
+      const attempts = getRemainingAttempts();
+      if (attempts <= 0) {
+        setAuthError('Too many attempts. Please wait 15 minutes and try again.');
+        return;
+      }
+
+      // Perform sign-in
+      await signInWithEmail(email, password, rememberMe);
+
+      // Success - navigation will happen via useEffect
+      
+    } catch (err) {
+      console.error('[Login] Email sign-in failed:', err);
+      setAuthError(err.message);
+      
+      // Update remaining attempts
+      setRemainingAttempts(getRemainingAttempts());
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  /**
    * Handle Google Sign-In
    */
   const handleGoogleSignIn = async () => {
@@ -80,7 +125,6 @@ const Login = () => {
       await signInWithGoogle(rememberMe);
 
       // Success - navigation will happen via useEffect
-      // No need to manually navigate here
       
     } catch (err) {
       console.error('[Login] Google sign-in failed:', err);
@@ -173,6 +217,115 @@ const Login = () => {
             {/* Error Message */}
             {renderError()}
 
+            {/* Email/Password Form */}
+            <form onSubmit={handleEmailSignIn} className="space-y-6 mb-6">
+              {/* Email Input */}
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                  Email Address
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={isLoading || loading || remainingAttempts <= 0}
+                  className="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  placeholder="you@example.com"
+                />
+              </div>
+
+              {/* Password Input */}
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                  Password
+                </label>
+                <div className="relative">
+                  <input
+                    id="password"
+                    name="password"
+                    type={showPassword ? 'text' : 'password'}
+                    autoComplete="current-password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={isLoading || loading || remainingAttempts <= 0}
+                    className="appearance-none block w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    placeholder="Enter your password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none"
+                    disabled={isLoading || loading}
+                  >
+                    {showPassword ? (
+                      <HiEyeOff className="h-5 w-5" />
+                    ) : (
+                      <HiEye className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Remember Me & Forgot Password */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <input
+                    id="remember-me"
+                    name="remember-me"
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded cursor-pointer"
+                    disabled={isLoading || loading}
+                  />
+                  <label
+                    htmlFor="remember-me"
+                    className="ml-2 block text-sm text-gray-700 cursor-pointer"
+                  >
+                    Keep me signed in
+                  </label>
+                </div>
+
+                <div className="text-sm">
+                  <Link
+                    to="/forgot-password"
+                    className="font-medium text-primary-600 hover:text-primary-700"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
+              </div>
+
+              {/* Sign In Button */}
+              <Button
+                type="submit"
+                variant="primary"
+                size="lg"
+                fullWidth
+                disabled={isLoading || loading || remainingAttempts <= 0}
+                loading={isLoading}
+              >
+                {isLoading ? 'Signing in...' : 'Sign In'}
+              </Button>
+            </form>
+
+            {/* Divider */}
+            <div className="relative mb-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-4 bg-white text-gray-500">
+                  Or continue with
+                </span>
+              </div>
+            </div>
+
             {/* Google Sign-In Button */}
             <div className="space-y-6">
               <Button
@@ -198,39 +351,6 @@ const Login = () => {
                   </>
                 )}
               </Button>
-
-              {/* Divider */}
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300"></div>
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-4 bg-white text-gray-500">
-                    Secure authentication
-                  </span>
-                </div>
-              </div>
-
-              {/* Remember Me Checkbox */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <input
-                    id="remember-me"
-                    name="remember-me"
-                    type="checkbox"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                    className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded cursor-pointer"
-                    disabled={isLoading || loading}
-                  />
-                  <label
-                    htmlFor="remember-me"
-                    className="ml-2 block text-sm text-gray-700 cursor-pointer"
-                  >
-                    Keep me signed in
-                  </label>
-                </div>
-              </div>
 
               {/* Security Features */}
               <div className="bg-primary-50 rounded-lg p-4">
@@ -284,9 +404,12 @@ const Login = () => {
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
               Don't have an account?{' '}
-              <span className="text-gray-700 font-medium">
-                Sign in with Google to create one automatically
-              </span>
+              <Link
+                to="/register"
+                className="text-primary-600 hover:text-primary-700 font-medium"
+              >
+                Create one now
+              </Link>
             </p>
           </div>
 

@@ -15,11 +15,13 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   const footerLinks = {
+
     products: [
-      { label: 'Day-Old Chicks', path: '/products?category=chicks' },
-      { label: 'Poultry Feeds', path: '/products?category=feeds' },
-      { label: 'Equipment', path: '/products?category=equipment' },
-      { label: 'Supplements', path: '/products?category=supplements' },
+      { label: 'Automatic Incubators', path: '/products?category=Automatic Incubators' },
+      { label: 'Feeders', path: '/products?category=Feeders' },
+      { label: 'Drinkers', path: '/products?category=Drinkers' },
+      { label: 'Brooding Equipment', path: '/products?category=Brooding Equipment' },
+      { label: 'Cages & Mesh', path: '/products?category=Cages & Mesh' },
     ],
     company: [
       { label: 'About Us', path: '/about' },
