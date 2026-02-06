@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   HiMail, 
   HiPhone, 
@@ -13,28 +13,32 @@ import {
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
+  const navigate = useNavigate();
 
   const footerLinks = {
-
     products: [
-      { label: 'Automatic Incubators', path: '/products?category=Automatic Incubators' },
-      { label: 'Feeders', path: '/products?category=Feeders' },
-      { label: 'Drinkers', path: '/products?category=Drinkers' },
-      { label: 'Brooding Equipment', path: '/products?category=Brooding Equipment' },
-      { label: 'Cages & Mesh', path: '/products?category=Cages & Mesh' },
+      { label: 'Automatic Incubators', category: 'automatic incubators' },
+      { label: 'Feeders', category: 'feeders' },
+      { label: 'Drinkers', category: 'drinkers' },
+      { label: 'Brooding Equipment', category: 'brooding equipment' },
+      { label: 'Cages & Mesh', category: 'cages & mesh' },
+      { label: 'Chickens', category: 'chickens' },
     ],
     company: [
       { label: 'About Us', path: '/about' },
-      { label: 'Services', path: '/services' },
-      { label: 'Contact', path: '/contact' },
-      { label: 'Help Center', path: '/help' },
+      { label: 'Contact Us', path: '/contact' },
     ],
     learning: [
       { label: 'Mkulima Sharp Academy', path: '/academy' },
-      { label: 'Business Builder', path: '/business-builder' },
-      { label: 'Training Programs', path: '/services#training' },
-      { label: 'Success Stories', path: '/about#success-stories' },
     ],
+  };
+
+  /**
+   * Handle product category click
+   * Navigate to products page with category pre-selected
+   */
+  const handleCategoryClick = (category) => {
+    navigate('/products', { state: { selectedCategory: category } });
   };
 
   return (
@@ -66,7 +70,7 @@ const Footer = () => {
             {/* Social Media Links */}
             <div className="flex space-x-4">
               <a
-                href=" https://www.facebook.com/share/1Au3c1JMKb/"
+                href="https://www.facebook.com/share/1Au3c1JMKb/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="touch-target text-gray-400 hover:text-primary-500 transition-colors"
@@ -111,13 +115,13 @@ const Footer = () => {
             </h4>
             <ul className="space-y-3">
               {footerLinks.products.map((link) => (
-                <li key={link.path}>
-                  <Link
-                    to={link.path}
-                    className="text-gray-400 hover:text-primary-500 transition-colors"
+                <li key={link.category}>
+                  <button
+                    onClick={() => handleCategoryClick(link.category)}
+                    className="text-gray-400 hover:text-primary-500 transition-colors text-left"
                   >
                     {link.label}
-                  </Link>
+                  </button>
                 </li>
               ))}
             </ul>
@@ -167,7 +171,7 @@ const Footer = () => {
               <li className="flex items-start space-x-3">
                 <HiPhone className="w-5 h-5 text-primary-500 flex-shrink-0 mt-1" />
                 <a 
-                  href="tel:+254700000000"
+                  href="tel:+254790694608"
                   className="text-gray-400 hover:text-primary-500 transition-colors"
                 >
                   +254 790 694 608
@@ -212,12 +216,6 @@ const Footer = () => {
                 className="text-gray-400 hover:text-primary-500 transition-colors"
               >
                 Terms of Service
-              </Link>
-              <Link
-                to="/shipping-policy"
-                className="text-gray-400 hover:text-primary-500 transition-colors"
-              >
-                Shipping Policy
               </Link>
             </div>
           </div>

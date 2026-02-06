@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import AnimatedSection from '../components/common/AnimatedSection';
@@ -6,6 +7,7 @@ import ProductCard from '../components/common/ProductCard';
 import Button from '../components/common/Button';
 
 const Products = () => {
+  const location = useLocation();
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -81,6 +83,21 @@ const Products = () => {
 
     fetchProducts();
   }, []);
+
+  /**
+   * Handle category selection from navigation state (footer links)
+   */
+  useEffect(() => {
+    if (location.state?.selectedCategory && products.length > 0) {
+      const category = location.state.selectedCategory;
+      console.log(' Category selected from footer:', category);
+      setSelectedCategory(category);
+      setMobileFilterOpen(false);
+      
+      // Clear the navigation state to prevent re-filtering on back navigation
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state, products]);
 
   /**
    * Filter products by category
