@@ -25,7 +25,7 @@ const Academy = () => {
       advantages: ['Hardy', 'Disease resistant', 'Low feeding cost', 'High market demand'],
       disadvantages: ['Slow growth', 'Low egg production'],
       marketAge: '3-6 months',
-      image: '/breeds/kienyeji.jpg'
+      image: '/breeds/kienyeji.webp'
     },
     broiler: {
       name: 'Broilers',
@@ -34,7 +34,7 @@ const Academy = () => {
       advantages: ['Very fast growth', 'High meat yield', 'Ready in 5-6 weeks'],
       disadvantages: ['High feed cost', 'Sensitive to disease'],
       marketAge: '5-6 weeks',
-      image: '/breeds/broiler.jpg'
+      image: '/breeds/broiler.webp'
     },
     layer: {
       name: 'Layers',
@@ -43,7 +43,7 @@ const Academy = () => {
       advantages: ['High egg production (280-320 eggs/year)', 'Consistent income'],
       disadvantages: ['Require good management', 'Specialized feeding'],
       marketAge: '18-20 weeks (start laying)',
-      image: '/breeds/layers.jpg'
+      image: '/breeds/layers.webp'
     },
     dualPurpose: {
       name: 'Dual-Purpose Breeds',
@@ -52,7 +52,7 @@ const Academy = () => {
       advantages: ['Balanced productivity', 'Versatile', 'Good for beginners'],
       disadvantages: ['Slower than broilers', 'Fewer eggs than layers'],
       marketAge: '4-5 months',
-      image: '/breeds/dual-purpose.jpg'
+      image: '/breeds/dual-purpose.webp'
     },
     improved: {
       name: 'Improved Exotic/Hybrid',
@@ -61,7 +61,7 @@ const Academy = () => {
       advantages: ['Faster growth than kienyeji', 'Hardier than broilers', 'Good market price'],
       disadvantages: ['Slightly higher feed cost'],
       marketAge: '8-16 weeks',
-      image: '/breeds/improved.jpg'
+      image: '/breeds/improved.webp'
     }
   };
 
